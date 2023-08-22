@@ -82,6 +82,7 @@ dependencies:
   syncfusion_flutter_datepicker: ^21.1.41
   geocoding:
   firebase_messaging:
+  dio:
 
 
 

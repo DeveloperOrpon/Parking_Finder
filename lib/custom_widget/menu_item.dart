@@ -60,6 +60,6 @@ const List<MenuClass> mainMenu = [
   MenuClass("Profile", Icons.payment, 0),
   MenuClass("Notifications", Icons.notifications, 2),
   MenuClass("Support", Icons.help, 3),
-  MenuClass("Nearby Garage Place", Icons.garage, 4),
-  MenuClass("Nearby Parking Place", Icons.local_parking, 5),
+  MenuClass("NearBy Garage", Icons.garage, 4),
+  MenuClass("NearBy Parking", Icons.local_parking, 5),
 ];

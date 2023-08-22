@@ -32,11 +32,14 @@ class WelcomePage extends StatelessWidget {
         bool isShowOnboarding = await getOnboardingStatus();
         bool isLogin = await getLoginStatus();
 
+        log("isLoginState : $isLogin");
+
         if (isLogin) {
           final jwtToken = await getJWTToken();
           final userInfo = await getUserInfo();
           final searchList = await provider.getSearchAllList();
 
+          log("jwtToken : $jwtToken");
           log("SearchList : $searchList");
           log("UserInfo $userInfo");
           Provider.of<MapProvider>(context, listen: false).mapParkingIcon();
@@ -46,7 +49,7 @@ class WelcomePage extends StatelessWidget {
           log(jsonResponse.runtimeType.toString());
           UserModel userModel = UserModel.fromJson(jsonResponse);
           log("UserModel ${userModel.email}");
-          provider.userModel = userModel;
+          provider.user = userModel;
           provider.jwtToken = jwtToken;
           EasyLoading.dismiss();
           Get.offAll(const CustomNavigationDrawer(),

@@ -355,14 +355,15 @@ class HomePageMap extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Hi, ${userProvider.userModel!.userinfo![0].username}",
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                if (userProvider.user != null)
+                  Text(
+                    "Hi, ${userProvider.user!.username}",
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
                 const Text(
                   "Where do you want to park?",
                   style: TextStyle(

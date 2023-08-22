@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       systemNavigationBarColor: Colors.black, // navigation bar color
       statusBarColor: Colors.black12, // status bar color
     ));
-
+    // AuthenticateService.logout();
     return GetMaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,

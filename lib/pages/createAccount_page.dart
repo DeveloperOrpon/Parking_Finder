@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:parking_finder/pages/login_page.dart';
-import 'package:parking_finder/pages/profileInfo_set_page.dart';
 import 'package:parking_finder/providers/login_provider.dart';
 import 'package:parking_finder/utilities/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -52,6 +51,41 @@ class CreateAccountPage extends StatelessWidget {
               ),
               // Section 2 - Form
               // Email
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: TextFormField(
+                  controller: loginProvider.nameController,
+                  autofocus: false,
+                  decoration: InputDecoration(
+                    hintText: 'Full Name',
+                    prefixIcon: Container(
+                      padding: const EdgeInsets.all(12),
+                      child: Icon(FontAwesomeIcons.user,
+                          color: AppColors.primaryColor),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 14),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppColors.primaryColor, width: 1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppColors.primaryColor, width: 1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    fillColor: AppColors.primarySoft,
+                    filled: true,
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Input Valid Full Name';
+                    }
+                    return null;
+                  },
+                ),
+              ),
               TextFormField(
                 controller: loginProvider.emailController,
                 autofocus: false,
@@ -164,8 +198,7 @@ class CreateAccountPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   if (createKey.currentState!.validate()) {
-                    Get.to(const ProfileInformationSetPage(),
-                        transition: Transition.rightToLeftWithFade);
+                    loginProvider.registrationUser(loginProvider);
                   }
                 },
                 style: ElevatedButton.styleFrom(

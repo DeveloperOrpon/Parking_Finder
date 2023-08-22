@@ -32,7 +32,7 @@ class UserProvider extends ChangeNotifier {
   int _selectBottomBar = 0;
   int _selectNavDrawer = 0;
   String _version = '';
-  UserModel? userModel;
+  UserModel? user;
   String? jwtToken;
   late TextEditingController fullNameController;
   late TextEditingController emailController;
@@ -95,7 +95,7 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String get version => _version;
+  String get version => _version = '1.0.0';
 
   set version(String value) {
     _version = value;
@@ -109,16 +109,14 @@ class UserProvider extends ChangeNotifier {
   }
 
   intController(BuildContext context) {
-    fullNameController =
-        TextEditingController(text: userModel!.userinfo![0].username);
-    addressController = TextEditingController(text: 'Dhaka');
-    emailController = TextEditingController(text: userModel!.email);
+    fullNameController = TextEditingController(text: user!.username);
+    addressController = TextEditingController(text: user!.address ?? "");
+    emailController = TextEditingController(text: user!.email);
     phoneController = PhoneNumberInputController(context);
-    phoneController.phoneNumber = userModel!.userinfo![0].contNo!;
-    dob = userModel!.userinfo![0].dob ?? "DOB NOT SET";
-    selectGender = userModel!.userinfo![0].gender ?? "NOT SET";
-    nidController =
-        TextEditingController(text: userModel!.userinfo![0].nidImage ?? '000');
+    phoneController.phoneNumber = user!.phoneNo!;
+    dob = user!.dob ?? "DOB NOT SET";
+    selectGender = user!.gender ?? "NOT SET";
+    nidController = TextEditingController(text: user!.nidImage ?? '000');
   }
 
   getDatePicker(BuildContext context) async {
@@ -188,7 +186,7 @@ class UserProvider extends ChangeNotifier {
     final userInfo = await getUserInfo();
     var jsonResponse = convert.jsonDecode(userInfo) as Map<String, dynamic>;
     UserModel newUserModel = UserModel.fromJson(jsonResponse);
-    userModel = newUserModel;
+    user = newUserModel;
     notifyListeners();
   }
 
@@ -197,5 +195,15 @@ class UserProvider extends ChangeNotifier {
     emailController.dispose();
     phoneController.dispose();
     nidController.dispose();
+  }
+
+  clearController() {
+    fullNameController.text = '';
+    emailController.text = '';
+    phoneController.phoneNumber = '';
+    nidController.text = '';
+    userLicenceImgUrl = null;
+    pickImagePath = null;
+    addressController.text = '';
   }
 }

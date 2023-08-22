@@ -11,6 +11,7 @@ import 'package:parking_finder/utilities/app_colors.dart';
 import 'package:provider/provider.dart';
 
 import '../api/authenticate_service.dart';
+import '../pages/NearByGarageScreen.dart';
 import '../pages/Notification_page.dart';
 import '../pages/support_page.dart';
 import '../utilities/diaglog.dart';
@@ -46,49 +47,48 @@ class CustomNavigationDrawer extends StatelessWidget {
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          Entry(
-                            opacity: .5,
-                            angle: 3.1415,
-                            scale: .5,
-                            delay: const Duration(milliseconds: 300),
-                            duration: const Duration(milliseconds: 700),
-                            curve: Curves.decelerate,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: AppColors.primaryColor,
-                                  width: 2,
+                          if (userProvider.user != null)
+                            Entry(
+                              opacity: .5,
+                              angle: 3.1415,
+                              scale: .5,
+                              delay: const Duration(milliseconds: 300),
+                              duration: const Duration(milliseconds: 700),
+                              curve: Curves.decelerate,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: AppColors.primaryColor,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(100),
                                 ),
-                                borderRadius: BorderRadius.circular(100),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: userProvider.userModel!.userinfo![0]
-                                            .profileImage !=
-                                        null
-                                    ? CachedNetworkImage(
-                                        width: 70,
-                                        height: 70,
-                                        fit: BoxFit.cover,
-                                        imageUrl:
-                                            "${userProvider.userModel!.userinfo![0].profileImage}",
-                                        progressIndicatorBuilder:
-                                            (context, url, downloadProgress) =>
-                                                SpinKitSpinningLines(
-                                          color: AppColors.primaryColor,
-                                          size: 40.0,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: userProvider.user!.profileImage != null
+                                      ? CachedNetworkImage(
+                                          width: 70,
+                                          height: 70,
+                                          fit: BoxFit.cover,
+                                          imageUrl:
+                                              "${userProvider.user!.profileImage}",
+                                          progressIndicatorBuilder: (context,
+                                                  url, downloadProgress) =>
+                                              SpinKitSpinningLines(
+                                            color: AppColors.primaryColor,
+                                            size: 40.0,
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(Icons.error),
+                                        )
+                                      : const CircleAvatar(
+                                          radius: 40,
                                         ),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(Icons.error),
-                                      )
-                                    : const CircleAvatar(
-                                        radius: 40,
-                                      ),
+                                ),
                               ),
                             ),
-                          ),
                           Positioned(
                             right: -Get.width * .56,
                             child: OutlinedButton.icon(
@@ -113,10 +113,11 @@ class CustomNavigationDrawer extends StatelessWidget {
                           )
                         ],
                       ),
-                      Text(
-                        "${userProvider.userModel!.userinfo![0].username}",
-                        style: blackBoldText,
-                      ),
+                      if (userProvider.user != null)
+                        Text(
+                          "${userProvider.user!.username}",
+                          style: blackBoldText,
+                        ),
                       const SizedBox(height: 6),
                       Divider(
                         thickness: 4,
@@ -145,6 +146,15 @@ class CustomNavigationDrawer extends StatelessWidget {
                                   userProvider.drawerController.close!();
                                   userProvider.pageController.jumpToPage(3);
                                   userProvider.selectBottomBar = 3;
+                                } else if (item.title == 'NearBy Parking') {
+                                  userProvider.drawerController.close!();
+                                  userProvider.pageController.jumpToPage(2);
+                                  userProvider.selectBottomBar = 2;
+                                } else if (item.title == 'NearBy Garage') {
+                                  userProvider.drawerController.close!();
+                                  Get.to(const NearByGarageScreen(),
+                                      transition:
+                                          Transition.rightToLeftWithFade);
                                 } else if (item.title == 'Support') {
                                   Get.to(const SupportPage(),
                                           transition:
@@ -173,17 +183,18 @@ class CustomNavigationDrawer extends StatelessWidget {
                       Expanded(
                           child: Column(
                         children: [
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
+                          if (userProvider.user != null)
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                              ),
+                              label: const Text("Logout"),
+                              icon: const Icon(Icons.login_rounded),
+                              onPressed: () {
+                                startLoading('LogOut....');
+                                AuthenticateService.logout();
+                              },
                             ),
-                            label: const Text("Logout"),
-                            icon: const Icon(Icons.login_rounded),
-                            onPressed: () {
-                              startLoading('LogOut....');
-                              AuthenticateService.logout();
-                            },
-                          ),
                           Expanded(
                             child: Center(
                               child: Text(

@@ -180,8 +180,7 @@ class ProfileInformationSetPage extends StatelessWidget {
                                 return;
                               }
                               loginProvider.buttonDeactive = true;
-                              loginProvider.registrationUser(
-                                  phoneController.phoneNumber, loginProvider);
+                              loginProvider.registrationUser(loginProvider);
                             }
                             phoneController.phoneNumber = '';
                           },

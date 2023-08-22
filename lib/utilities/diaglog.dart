@@ -99,6 +99,6 @@ void configLoading() {
     ..indicatorColor = Colors.white
     ..textColor = Colors.white
     ..maskColor = Colors.blue.withOpacity(0.5)
-    ..userInteractions = false
-    ..dismissOnTap = false;
+    ..userInteractions = true
+    ..dismissOnTap = true;
 }

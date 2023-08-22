@@ -1,5 +1,7 @@
 import 'dart:convert' as convert;
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -32,8 +34,7 @@ class AuthenticateService {
 
       setLoginStatus(true);
       setJWTToken(jsonResponse['token']);
-      setUserInfo(convert.jsonEncode(jsonResponse['isExist']));
-
+      setUserInfo(convert.jsonEncode(jsonResponse['user']));
       EasyLoading.dismiss();
       Fluttertoast.showToast(
           msg: "Login Successful",
@@ -215,23 +216,18 @@ class AuthenticateService {
   }
 
   static Future<void> userRegistration(
-      UserModel userModel, LoginProvider loginProvider) async {
+      Map<String, dynamic> userJson, LoginProvider loginProvider) async {
     startLoading("Registration Wait..");
+    loginProvider.nameController.text = '';
+    loginProvider.emailController.text = '';
+    loginProvider.passwordController.text = '';
+
     var url = Uri.parse('$baseUrl/signup/user');
-    var request = Http.MultipartRequest('POST', url);
-    request.files.add(await Http.MultipartFile.fromPath(
-      "file",
-      userModel.userinfo![0].profileImage!,
-    ));
-    request.fields['email'] = userModel.email!;
-    request.fields['password'] = userModel.password!;
-    request.fields['username'] = userModel.userinfo![0].username!;
-    //request.fields['nick_name'] = userModel.userinfo![0].nickName!;
-    request.fields['cont_no'] = userModel.userinfo![0].contNo!;
+    log("Data $userJson");
+    log("Data $url");
     try {
-      final streamResponse = await request.send();
       final response =
-          await Http.Response.fromStream(streamResponse).catchError((onError) {
+          await Http.post(url, body: userJson).catchError((onError) {
         EasyLoading.dismiss();
         log(onError.toString());
       });
@@ -251,7 +247,7 @@ class AuthenticateService {
             textColor: Colors.white,
             fontSize: 16.0);
         if (loginProvider.directLogin) {
-          userLogin(userModel.email!, userModel.password!, loginProvider);
+          userLogin(userJson['email'], userJson["password"], loginProvider);
         }
       } else {
         loginProvider.buttonDeactive = false;
@@ -266,44 +262,32 @@ class AuthenticateService {
     }
   }
 
-  static Future<void> updateUser(
-      Userinfo userinfo, UserProvider userProvider, String email) async {
+  static Future<void> updateUser(UserModel userinfo, UserProvider userProvider,
+      String email, BuildContext context) async {
     var jwtToken = await getJWTToken();
-    startLoading("Updating Info Wait..");
-    var header = {
-      "Authorization": "Bearer $jwtToken",
-      'Content-Type': 'application/json'
-    };
-    var body = '''{
-    "userinfo": [
-      {
-        "profile_image": "${userinfo.profileImage}",
-        "username": "${userinfo.username}",
-        "cont_no": "${userinfo.contNo}",
-        "nid_image": "${userinfo.nidImage}",
-        "licence_image": "${userinfo.licenceImage}",
-        "dob":"${userinfo.dob}",
-        "gender": "${userinfo.gender}"
-      }
-    ]
-  }''';
+    // startLoading("Updating Info Wait..");
+    Map<String, dynamic> map = userinfo.toJson();
+    map.removeWhere((key, value) => value == null);
+    // var header = {
+    //   "Authorization": "Bearer $jwtToken",
+    //   'Content-Type': 'application/json'
+    // };
 
-    log(body.toString());
+    log(map.toString());
 
-    var url = Uri.parse('$baseUrl/user/profile/update/$email');
+    var url = Uri.parse('$baseUrl/user/update/profile/$email');
 
     try {
-      var response = await Http.post(url, body: body, headers: header)
-          .catchError((onError) {
+      var response = await Http.patch(url, body: map).catchError((onError) {
         EasyLoading.dismiss();
         log(onError.toString());
       });
       if (response.statusCode == 200) {
-        log(response.body.toString());
-        log(response.body);
+        userProvider.clearController();
+        log("update Data: ${response.body.toString()}");
         var jsonResponse =
             convert.jsonDecode(response.body) as Map<String, dynamic>;
-        setUserInfo(convert.jsonEncode(jsonResponse['data']));
+        setUserInfo(convert.jsonEncode(jsonResponse['updatedUser']));
         userProvider.getUserFromSharePref();
         EasyLoading.dismiss();
         Fluttertoast.showToast(
@@ -331,6 +315,26 @@ class AuthenticateService {
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0);
+    }
+  }
+
+  static Future<String> uploadImage(String path) async {
+    try {
+      List<int> imageBytes = await File(path).readAsBytes();
+      String base64Image = base64Encode(imageBytes);
+      log("Base:$base64Image");
+      var map = <String, dynamic>{};
+      map['image'] = base64Image;
+      map['key'] = 'f37014febec8af063cef4f686f5928c3';
+      var url = Uri.parse(imageUploadUrl);
+      var response = await Http.post(url, body: map);
+      log(response.body);
+      var jsonResponse =
+          convert.jsonDecode(response.body) as Map<String, dynamic>;
+      return jsonResponse['data']['url'];
+    } catch (error) {
+      log(error.toString());
+      return '';
     }
   }
 }

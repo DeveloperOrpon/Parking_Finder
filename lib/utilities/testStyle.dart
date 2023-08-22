@@ -62,6 +62,11 @@ TextStyle grayLowSmallColor = const TextStyle(
   fontSize: 12,
   letterSpacing: 1.5,
 );
+TextStyle grayLowMediumColor = const TextStyle(
+  color: Colors.grey,
+  fontSize: 16,
+  letterSpacing: 1.5,
+);
 TextStyle grayNoSpaceLowSmallColor = const TextStyle(
   color: Colors.grey,
   fontSize: 12,

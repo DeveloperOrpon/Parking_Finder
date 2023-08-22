@@ -55,7 +55,7 @@ class BookingPage extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () {
-                          Get.to(const SelectVehiclePage(),
+                          Get.to(SelectVehiclePage(),
                               transition: Transition.leftToRightWithFade);
                         },
                         child: Text(

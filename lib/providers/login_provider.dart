@@ -9,7 +9,6 @@ import 'package:parking_finder/api/fire_base_auth.dart';
 import 'package:parking_finder/utilities/diaglog.dart';
 
 import '../api/authenticate_service.dart';
-import '../model/user_model.dart';
 import '../utilities/helper_function.dart';
 
 class LoginProvider extends ChangeNotifier {
@@ -23,6 +22,7 @@ class LoginProvider extends ChangeNotifier {
   String? pickImagePath;
   String selectGender = "Male";
   final emailController = TextEditingController();
+  final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final fullNameController = TextEditingController();
   final nickNameController = TextEditingController();
@@ -106,24 +106,30 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-  void registrationUser(String phoneNumber, LoginProvider loginProvider) {
-    Userinfo userinfo = Userinfo(
-      username: fullNameController.text,
-      // nickName: nickNameController.text,
-      contNo: phoneNumber ?? "",
-      profileImage: pickImagePath ?? "",
-      // isVerified: "",
-      licenceImage: "",
-      nidImage: "",
-      role: "",
-    );
-    var userModel = UserModel(
-      email: emailController.text,
-      password: passwordController.text,
-      userinfo: [userinfo],
-    );
-    log("${userModel.toJson()}");
-    AuthenticateService.userRegistration(userModel, loginProvider);
+  void registrationUser(LoginProvider loginProvider) {
+    // Userinfo userinfo = Userinfo(
+    //   username: fullNameController.text,
+    //   // nickName: nickNameController.text,
+    //   contNo: phoneNumber ?? "",
+    //   profileImage: pickImagePath ?? "",
+    //   // isVerified: "",
+    //   licenceImage: "",
+    //   nidImage: "",
+    //   role: "",
+    // );
+    // var userModel = UserModel(
+    //   email: emailController.text,
+    //   password: passwordController.text,
+    //   userinfo: [userinfo],
+    // );
+    // log("${userModel.toJson()}");
+    Map<String, dynamic> userJson = {
+      "username": nameController.text,
+      "email": emailController.text,
+      "password": passwordController.text,
+    };
+
+    AuthenticateService.userRegistration(userJson, loginProvider);
   }
 
   Future<void> logInWithGoogle(
@@ -140,23 +146,12 @@ class LoginProvider extends ChangeNotifier {
   Future<void> createUserWithGoogle(
       LoginProvider loginProvider, BuildContext context) async {
     await FirebaseAuthService.signInWithGoogle().then((credential) async {
-      log("Credential ${credential.user.toString()}");
-      Userinfo userinfo = Userinfo(
-        username: credential.user!.displayName,
-        //  nickName: credential.user!.displayName,
-        contNo: "01900000000",
-        profileImage: credential.user!.photoURL ?? "",
-        //isVerified: "",
-        licenceImage: "",
-        nidImage: "",
-        role: "",
-      );
-      var userModel = UserModel(
-        email: credential.user!.email,
-        password: '123456',
-        userinfo: [userinfo],
-      );
-      AuthenticateService.userRegistration(userModel, loginProvider);
+      Map<String, dynamic> userJson = {
+        "username": credential.user!.displayName ?? "No Name Set",
+        "email": credential.user!.email!,
+        "password": '123456',
+      };
+      AuthenticateService.userRegistration(userJson, loginProvider);
     }).catchError((onError) {
       showSnackBar("Attention", onError.toString());
       log("error :${onError.toString()}");

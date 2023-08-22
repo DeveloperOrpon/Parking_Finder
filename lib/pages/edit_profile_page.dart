@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 
 import '../api/authenticate_service.dart';
 import '../utilities/app_colors.dart';
+import '../utilities/diaglog.dart';
 
 class EditProfilePage extends StatelessWidget {
   const EditProfilePage({Key? key}) : super(key: key);
@@ -29,6 +30,8 @@ class EditProfilePage extends StatelessWidget {
     EasyLoading.dismiss();
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
+        userProvider.userLicenceImgUrl = null;
+        userProvider.pickImagePath = null;
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: appBarWithTitle(
@@ -66,7 +69,7 @@ class EditProfilePage extends StatelessWidget {
                                       height: 100,
                                       fit: BoxFit.cover,
                                       imageUrl:
-                                          "${userProvider.userModel!.userinfo![0].profileImage}",
+                                          "${userProvider.user!.profileImage}",
                                       progressIndicatorBuilder:
                                           (context, url, downloadProgress) =>
                                               SpinKitSpinningLines(
@@ -98,7 +101,7 @@ class EditProfilePage extends StatelessWidget {
                               children: [
                                 TextSpan(
                                   text: getJoinTimeFormattedDate(
-                                      userProvider.userModel!.createdAt!),
+                                      userProvider.user!.createdAt!),
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: AppColors.primaryColor),
@@ -172,7 +175,7 @@ class EditProfilePage extends StatelessWidget {
                           controller: userProvider.emailController,
                           autofocus: false,
                           focusNode: userProvider.emailNameFocusNode,
-                          enabled: userProvider.userModel!.email!.isNotEmpty
+                          enabled: userProvider.user!.email!.isNotEmpty
                               ? false
                               : true,
                           //  focusNode: loginProvider.passFocusNode,
@@ -371,10 +374,11 @@ class EditProfilePage extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade100,
                                   border: Border.all(
-                                    color:
-                                        userProvider.userLicenceImgUrl == null
-                                            ? Colors.red
-                                            : Colors.green,
+                                    color: userProvider.userLicenceImgUrl ==
+                                                null &&
+                                            userProvider.user!.nidImage == null
+                                        ? Colors.red
+                                        : Colors.green,
                                     width: 2,
                                   ),
                                   borderRadius: BorderRadius.circular(8),
@@ -382,17 +386,19 @@ class EditProfilePage extends StatelessWidget {
                                 child: Text(
                                   "Select A Original Image Of NID/Driving Licence",
                                   style: TextStyle(
-                                    color:
-                                        userProvider.userLicenceImgUrl == null
-                                            ? Colors.red
-                                            : Colors.blueAccent,
+                                    color: userProvider.userLicenceImgUrl ==
+                                                null &&
+                                            userProvider.user!.nidImage == null
+                                        ? Colors.red
+                                        : Colors.blueAccent,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
                                   ),
                                 ),
                               ),
                               Card(
-                                child: userProvider.userLicenceImgUrl == null
+                                child: userProvider.userLicenceImgUrl == null &&
+                                        userProvider.user!.licenceImage == null
                                     ? const Icon(
                                         Icons.photo,
                                         size: 100,
@@ -403,12 +409,32 @@ class EditProfilePage extends StatelessWidget {
                                               userProvider.userLicenceImgUrl,
                                               false);
                                         },
-                                        child: Image.file(
-                                          File(userProvider.userLicenceImgUrl!),
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
-                                        ),
+                                        child: userProvider.userLicenceImgUrl ==
+                                                null
+                                            ? CachedNetworkImage(
+                                                width: 100,
+                                                height: 100,
+                                                fit: BoxFit.cover,
+                                                imageUrl:
+                                                    "${userProvider.user!.licenceImage}",
+                                                progressIndicatorBuilder:
+                                                    (context, url,
+                                                            downloadProgress) =>
+                                                        SpinKitSpinningLines(
+                                                  color: AppColors.primaryColor,
+                                                  size: 50.0,
+                                                ),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        const Icon(Icons.error),
+                                              )
+                                            : Image.file(
+                                                File(userProvider
+                                                    .userLicenceImgUrl!),
+                                                width: 100,
+                                                height: 100,
+                                                fit: BoxFit.cover,
+                                              ),
                                       ),
                               ),
                               Row(
@@ -450,31 +476,36 @@ class EditProfilePage extends StatelessWidget {
           floatingActionButton: Padding(
             padding: const EdgeInsets.all(12.0),
             child: CupertinoButton.filled(
-                onPressed: () {
+                onPressed: () async {
                   userProvider.emailNameFocusNode.unfocus();
                   userProvider.fullNameFocusNode.unfocus();
                   userProvider.addressFocusNode.unfocus();
                   userProvider.nidFocusNode.unfocus();
                   if (userProvider.profileEditFormKey.currentState!
                       .validate()) {
-                    var userInfo = Userinfo(
+                    startLoading("Updating Info Wait..");
+                    String profileImage = userProvider.pickImagePath != null
+                        ? await AuthenticateService.uploadImage(
+                            userProvider.pickImagePath!)
+                        : userProvider.user!.profileImage!;
+                    String licenceImage = userProvider.userLicenceImgUrl != null
+                        ? await AuthenticateService.uploadImage(
+                            userProvider.userLicenceImgUrl!)
+                        : userProvider.user!.licenceImage!;
+                    var userInfo = UserModel(
+                      address: userProvider.addressController.text,
                       username: userProvider.fullNameController.text,
-                      contNo: userProvider.phoneController.phoneNumber,
-                      dob: userProvider.dob ??
-                          userProvider.userModel!.userinfo![0].dob,
+                      phoneNo: userProvider.phoneController.phoneNumber,
+                      dob: userProvider.dob ?? userProvider.user!.dob,
                       gender: userProvider.selectGender ??
-                          userProvider.userModel!.userinfo![0].gender,
-                      profileImage: userProvider.pickImagePath ??
-                          userProvider.userModel!.userinfo![0].profileImage,
-                      licenceImage: userProvider.userLicenceImgUrl ??
-                          userProvider.userModel!.userinfo![0].licenceImage,
+                          userProvider.user!.gender,
+                      profileImage: profileImage,
+                      licenceImage: licenceImage,
                       nidImage: userProvider.nidController.text,
                     );
-                    AuthenticateService.updateUser(
-                      userInfo,
-                      userProvider,
-                      userProvider.userModel!.email!,
-                    );
+                    log("message");
+                    AuthenticateService.updateUser(userInfo, userProvider,
+                        userProvider.user!.email!, context);
                   }
                 },
                 child: Text(
