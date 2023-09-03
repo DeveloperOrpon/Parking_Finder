@@ -6,6 +6,11 @@ const TextStyle whiteText = TextStyle(
   color: Colors.white,
   fontSize: 16,
 );
+TextStyle primarySmallBoldText = TextStyle(
+  color: AppColors.primaryColor,
+  fontWeight: FontWeight.bold,
+  fontSize: 14,
+);
 
 TextStyle continueBlackTextStyle = GoogleFonts.poppins(
   color: Colors.black,
@@ -34,6 +39,11 @@ TextStyle whiteBoldText = const TextStyle(
   fontWeight: FontWeight.w600,
   fontSize: 18,
 );
+TextStyle whiteBold14Text = const TextStyle(
+  color: Colors.white,
+  fontWeight: FontWeight.w600,
+  fontSize: 14,
+);
 
 TextStyle blackBoldText = const TextStyle(
   color: Colors.black,
@@ -59,6 +69,11 @@ TextStyle grayLowColor = const TextStyle(
 );
 TextStyle grayLowSmallColor = const TextStyle(
   color: Colors.grey,
+  fontSize: 12,
+  letterSpacing: 1.5,
+);
+TextStyle primaryLowSmallColor = TextStyle(
+  color: AppColors.primaryColor,
   fontSize: 12,
   letterSpacing: 1.5,
 );

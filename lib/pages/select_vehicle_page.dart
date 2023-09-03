@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parking_finder/controller/ParkingController.dart';
 import 'package:parking_finder/custom_widget/appbar_with_title.dart';
 import 'package:parking_finder/providers/booking_provider.dart';
 import 'package:parking_finder/providers/user_provider.dart';
 import 'package:parking_finder/utilities/testStyle.dart';
 import 'package:provider/provider.dart';
 
+import '../model/vicModel.dart';
 import '../utilities/app_colors.dart';
 import 'add_vehicle_page.dart';
 
@@ -17,6 +19,7 @@ class SelectVehiclePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final parkingController = Get.put(ParkingController());
     final bookingProvider = Provider.of<BookingProvider>(context);
     return Scaffold(
       appBar: appBarWithTitleWhiteBG(
@@ -30,49 +33,52 @@ class SelectVehiclePage extends StatelessWidget {
             children: [
               Expanded(
                   child: userProvider.user == null ||
-                          userProvider.user!.vicList!.isEmpty
+                          userProvider.user!.name!.isEmpty
                       ? Center(
                           child: Text(
                             "You Haven't Any Vehicles",
                             style: appThemeTextStyle,
                           ),
                         )
-                      : ListView.builder(
-                          itemCount: userProvider.user!.vicList!.length,
-                          itemBuilder: (context, index) {
-                            var vicList = userProvider.user!.vicList![index];
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              alignment: Alignment.center,
-                              height: 90,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.grey,
-                                  width: 1,
+                      : Obx(() {
+                          return ListView.builder(
+                            itemCount: parkingController.carList.value.length,
+                            itemBuilder: (context, index) {
+                              var vicList =
+                                  parkingController.carList.value[index];
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 10),
+                                alignment: Alignment.center,
+                                height: 90,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: ListTile(
-                                leading: Image.asset(bookingProvider
-                                    .getVehicleImage(vicList.vehicleType!)),
-                                title: Text(vicList.vehicle!,
-                                    style: blackBoldText),
-                                subtitle: Text(
-                                  vicList.model!,
-                                  style: grayTextStyle,
+                                child: ListTile(
+                                  leading: Image.asset(bookingProvider
+                                      .getVehicleImage(vicList.vehicleType!)),
+                                  title: Text(vicList.vehicle!,
+                                      style: blackBoldText),
+                                  subtitle: Text(
+                                    vicList.model!,
+                                    style: grayTextStyle,
+                                  ),
+                                  trailing: Radio(
+                                    value: true,
+                                    groupValue: vicList.isDefault,
+                                    onChanged: (value) {
+                                      bookingProvider.defaultCar(
+                                          VicModel(), userProvider);
+                                    },
+                                  ),
                                 ),
-                                trailing: Radio(
-                                  value: true,
-                                  groupValue: vicList.isDefault,
-                                  onChanged: (value) {
-                                    bookingProvider.defaultCar(
-                                        vicList, userProvider);
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        )),
+                              );
+                            },
+                          );
+                        })),
               const SizedBox(height: 10),
               Row(
                 children: [

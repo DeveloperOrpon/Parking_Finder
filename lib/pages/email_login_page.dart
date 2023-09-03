@@ -7,7 +7,6 @@ import 'package:parking_finder/utilities/app_colors.dart';
 import 'package:parking_finder/utilities/diaglog.dart';
 import 'package:provider/provider.dart';
 
-import '../api/authenticate_service.dart';
 import '../custom_widget/simple_appBar.dart';
 import '../utilities/testStyle.dart';
 import 'forgot_password_page.dart';
@@ -187,8 +186,9 @@ class EmailLoginPage extends StatelessWidget {
                           loginProvider.emailFocusNode.unfocus();
                           loginProvider.passFocusNode.unfocus();
                           if (loginKey.currentState!.validate()) {
+                            startLoading("Please Wait Login..");
                             loginProvider.buttonDeactive = true;
-                            AuthenticateService.userLogin(
+                            loginProvider.userLogin(
                                 loginProvider.emailController.text,
                                 loginProvider.passwordController.text,
                                 loginProvider);

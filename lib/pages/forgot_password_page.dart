@@ -147,7 +147,7 @@ class ForgotPage extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (index == 0) {
-          showErrorToastMessage("Right Now This Feature Not Available");
+          showErrorToastMessage(message: "Right Now This Feature Not Available");
           return;
         }
         loginProvider.forgotPasswordTileSelect = index;

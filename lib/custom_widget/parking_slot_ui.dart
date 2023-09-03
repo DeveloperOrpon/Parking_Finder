@@ -4,8 +4,10 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:entry/entry.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parking_finder/model/parking_model.dart';
 import 'package:parking_finder/utilities/app_colors.dart';
 
+import '../model/garage_model.dart';
 import '../pages/booking_page.dart';
 
 class ParkingSlot extends StatelessWidget {
@@ -14,6 +16,8 @@ class ParkingSlot extends StatelessWidget {
   final String? slotName;
   final String slotId;
   final String time;
+  final ParkingModel parkingModel;
+  final SpotInformation spotInformation;
 
   const ParkingSlot({
     super.key,
@@ -22,6 +26,8 @@ class ParkingSlot extends StatelessWidget {
     this.slotName,
     this.slotId = "0.0",
     required this.time,
+    required this.parkingModel,
+    required this.spotInformation,
   });
 
   @override
@@ -94,9 +100,9 @@ class ParkingSlot extends StatelessWidget {
                     child: InkWell(
                       onTap: () {
                         Get.to(
-                            const BookingPage(
-                              slotId: '2239',
-                              slotName: 'A1',
+                            BookingPage(
+                              parkingModel: parkingModel,
+                              slotInformation: spotInformation,
                             ),
                             transition: Transition.leftToRightWithFade);
                       },
@@ -117,6 +123,132 @@ class ParkingSlot extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ),
+                  ),
+                )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ParkingSlotEdit extends StatelessWidget {
+  final bool? isParked;
+  final bool? isBooked;
+  final String? slotName;
+  final String slotId;
+  final String time;
+  final Function onTap;
+
+  const ParkingSlotEdit({
+    super.key,
+    this.isParked,
+    this.isBooked,
+    this.slotName,
+    this.slotId = "0.0",
+    required this.time,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Entry(
+      opacity: .5,
+      scale: .5,
+      delay: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 700),
+      child: DottedBorder(
+        color: AppColors.primaryColor, //color of dotted/dash line
+        strokeWidth: 1, //thickness of dash/dots
+        dashPattern: const [10, 6],
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          width: 180,
+          height: 120,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  time == "0.0" ? const SizedBox(width: 1) : Text(time),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.blue.shade100,
+                        ),
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Text(
+                      slotName.toString(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const Text("")
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (isBooked == true && isParked == true)
+                Expanded(
+                  child: Transform.rotate(
+                    angle: slotId == '2239' ? math.pi : 0,
+                    child: Image.asset("assets/image/car.png"),
+                  ),
+                )
+              else if (isBooked == true)
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "BOOKED",
+                        style: TextStyle(
+                          color: Colors.red.shade400,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 6, horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor.withOpacity(.7),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            "Available",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            onTap();
+                          },
+                          child: Icon(
+                            Icons.remove_circle,
+                            color: Colors.red,
+                            size: 32,
+                          ),
+                        )
+                      ],
                     ),
                   ),
                 )

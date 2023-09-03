@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:parking_finder/database/dbhelper.dart';
 import 'package:parking_finder/providers/user_provider.dart';
+import 'package:parking_finder/services/Auth_service.dart';
 import 'package:parking_finder/utilities/diaglog.dart';
 
 import '../api/api_const.dart';
-import '../model/user_model.dart';
+import '../model/vicModel.dart';
 import '../preference/user_preference.dart';
 
 class BookingProvider extends ChangeNotifier {
@@ -97,47 +99,29 @@ class BookingProvider extends ChangeNotifier {
       UserProvider userProvider, BuildContext context) async {
     startLoading("Please Wait");
     List<Map<String, dynamic>> myVehiclesMap = [];
-    Map<String, dynamic> vehicleMap = {
-      "vId": DateTime.now().millisecondsSinceEpoch.toString(),
-      "vehicle": carNameController.text,
-      "plateNumber": carNamePlateController.text,
-      "model": carModelController.text,
-      "vehicleType": vehicleType,
-      "isDefault": false,
-    };
-    myVehiclesMap.add(vehicleMap);
-    if (userProvider.user!.vicList!.isNotEmpty) {
-      for (VicList vic in userProvider.user!.vicList!) {
-        myVehiclesMap.add(vic.toJson());
-      }
-    }
-
-    Map<String, dynamic> updateMap = {"vic_list": myVehiclesMap};
-
-    log("map : $updateMap");
-
+    VicModel vicModel = VicModel(
+      isDefault: false,
+      model: carModelController.text,
+      plateNumber: carNamePlateController.text,
+      vehicle: carNameController.text,
+      vehicleType: vehicleType,
+      vId: DateTime.now().millisecondsSinceEpoch.toString(),
+    );
     try {
-      Response response = await Dio().patch(
-          '$baseUrl/user/update/profile/${userProvider.user!.email}',
-          data: updateMap);
-      if (response.statusCode == 200) {
-        Map<String, dynamic> jsonResponse = response.data;
-        setUserInfo(convert.jsonEncode(jsonResponse['updatedUser']));
-        userProvider.getUserFromSharePref();
-        EasyLoading.dismiss();
-        carNameController.text = '';
-        carModelController.text = '';
-        carNamePlateController.text = '';
-        Fluttertoast.showToast(
-            msg: "Vehicle Added Successful",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      }
-    } on DioException catch (error) {
+      await DbHelper.addVehicle(AuthService.currentUser!.uid, vicModel);
+      EasyLoading.dismiss();
+      carNameController.text = '';
+      carNamePlateController.text = '';
+      carModelController.text = '';
+      Fluttertoast.showToast(
+          msg: 'Car Added Successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } catch (error) {
       log("ERROR ${error.toString()}");
       EasyLoading.dismiss();
       Fluttertoast.showToast(
@@ -151,19 +135,19 @@ class BookingProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> defaultCar(VicList vicList, UserProvider userProvider) async {
+  Future<void> defaultCar(VicModel vicList, UserProvider userProvider) async {
     List<Map<String, dynamic>> myVehiclesMap = [];
-    log("v: ${userProvider.user!.vicList!.firstWhere((element) => element.vId == vicList.vId).toJson()}");
-    if (userProvider.user!.vicList!.isNotEmpty) {
-      for (VicList vic in userProvider.user!.vicList!) {
-        if (vic.vId == vicList.vId) {
-          vic.isDefault = true;
-        } else {
-          vic.isDefault = false;
-        }
-        myVehiclesMap.add(vic.toJson());
-      }
-    }
+    // log("v: ${userProvider.user!.vicList!.firstWhere((element) => element.vId == vicList.vId).toJson()}");
+    // if (userProvider.user!.vicList!.isNotEmpty) {
+    //   for (VicList vic in userProvider.user!.vicList!) {
+    //     if (vic.vId == vicList.vId) {
+    //       vic.isDefault = true;
+    //     } else {
+    //       vic.isDefault = false;
+    //     }
+    //     myVehiclesMap.add(vic.toJson());
+    //   }
+    // }
     Map<String, dynamic> updateMap = {"vic_list": myVehiclesMap};
     try {
       Response response = await Dio().patch(
@@ -172,7 +156,7 @@ class BookingProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         Map<String, dynamic> jsonResponse = response.data;
         setUserInfo(convert.jsonEncode(jsonResponse['updatedUser']));
-        userProvider.getUserFromSharePref();
+        // userProvider.getUserFromSharePref();
         EasyLoading.dismiss();
         Fluttertoast.showToast(
             msg: "Vehicle Default Successful",

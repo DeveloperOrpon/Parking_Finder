@@ -1,14 +1,23 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parking_finder/pages/email_login_page.dart';
+import 'package:parking_finder/pages/welcome_page.dart';
 import 'package:parking_finder/providers/login_provider.dart';
 import 'package:parking_finder/utilities/app_colors.dart';
 import 'package:parking_finder/utilities/diaglog.dart';
 import 'package:provider/provider.dart';
 
+import '../database/dbhelper.dart';
+import '../model/user_model.dart';
+import '../services/Auth_service.dart';
 import '../utilities/testStyle.dart';
 import 'continue_with_phone_page.dart';
 import 'createAccount_page.dart';
@@ -61,8 +70,7 @@ class LoginPage extends StatelessWidget {
                           height: 50,
                           child: OutlinedButton.icon(
                             onPressed: () {
-                              loginProvider.logInWithGoogle(
-                                  loginProvider, context);
+                              _logInWithGoogle();
                             },
                             label: Text(
                               'Continue with Google',
@@ -149,5 +157,45 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _logInWithGoogle() async {
+    await AuthService.signInWithGoogle().then((credential) async {
+      EasyLoading.show(status: "Wait");
+      final userExists = await DbHelper.doesUserExist(credential.user!.uid);
+      if (!userExists) {
+        log("Creating User Account");
+        addUser(credential).then((value) {
+          EasyLoading.dismiss();
+          Get.to(() => const WelcomePage());
+        });
+      } else {
+        EasyLoading.dismiss();
+        Get.to(() => const WelcomePage());
+      }
+    }).catchError((onError) {
+      EasyLoading.dismiss();
+      Get.snackbar("Error Occurs", onError.toString(),
+          backgroundColor: Colors.red);
+      log("error :${onError.toString()}");
+    });
+  }
+
+  Future<void> addUser(UserCredential credential) async {
+    final userModel = UserModel(
+      balance: "0.0",
+      createdAt: Timestamp.fromDate(DateTime.now()),
+      isUserVerified: false,
+      accountActive: true,
+      isGarageOwner: false,
+      uid: AuthService.currentUser!.uid,
+      phoneNumber: credential.user!.phoneNumber ?? "0088",
+      email: credential.user!.email,
+      name: credential.user!.displayName,
+      profileUrl: credential.user!.photoURL,
+      createTime: Timestamp.fromDate(DateTime.now()),
+    );
+    log(userModel.toString());
+    return await DbHelper.addUser(userModel);
   }
 }

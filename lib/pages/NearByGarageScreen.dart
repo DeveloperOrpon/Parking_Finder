@@ -8,8 +8,6 @@ import 'package:pull_down_button/pull_down_button.dart';
 import '../utilities/appConst.dart';
 import '../utilities/app_colors.dart';
 import '../utilities/testStyle.dart';
-import 'GarageByParkings.dart';
-import 'SingleGaragePreview.dart';
 
 class NearByGarageScreen extends StatelessWidget {
   const NearByGarageScreen({Key? key}) : super(key: key);
@@ -87,8 +85,8 @@ class NearByGarageScreen extends StatelessWidget {
                                 icon: FontAwesomeIcons.v,
                                 title: 'Preview',
                                 onTap: () {
-                                  Get.to(const SingleGaragePreview(),
-                                      transition: Transition.topLevel);
+                                  // Get.to(const SingleGaragePreview(garageModel: ),
+                                  //     transition: Transition.topLevel);
                                 },
                               ),
                               const PullDownMenuDivider(),
@@ -96,8 +94,8 @@ class NearByGarageScreen extends StatelessWidget {
                                 icon: FontAwesomeIcons.parking,
                                 title: 'Parking Ads',
                                 onTap: () {
-                                  Get.to(const GarageByParking(),
-                                      transition: Transition.topLevel);
+                                  // Get.to(const GarageByParking(garageModel: n),
+                                  //     transition: Transition.topLevel);
                                 },
                               ),
                               const PullDownMenuDivider(),

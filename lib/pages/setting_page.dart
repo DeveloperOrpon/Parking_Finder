@@ -1,17 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:colorize_text_avatar/colorize_text_avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:parking_koi/pages/redirect_page.dart';
-import 'package:parking_koi/provider/adminProvider.dart';
+import 'package:parking_finder/providers/user_provider.dart';
+import 'package:parking_finder/utilities/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../controllers/home_controller.dart';
-import '../provider/mapProvider.dart';
-import '../services/Auth_service.dart';
-import 'chat_page.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -20,10 +14,16 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          "setting_title".tr,
-          style: const TextStyle(color: Colors.white),
+          "Setting",
+          style: TextStyle(color: AppColors.primaryColor),
         ),
         leading: Padding(
           padding: const EdgeInsets.only(left: 10.0),
@@ -31,15 +31,15 @@ class SettingPage extends StatelessWidget {
             onPressed: () {
               Get.back();
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_ios,
-              color: Colors.white,
+              color: AppColors.primaryColor,
               size: 32,
             ),
           ),
         ),
       ),
-      body: Consumer<MapProvider>(
+      body: Consumer<UserProvider>(
         builder: (context, provider, child) => ListView(
           children: [
             Padding(
@@ -48,7 +48,7 @@ class SettingPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   settingItem(
-                    subTitle: "notification".tr,
+                    subTitle: "Notifications",
                     icon: CupertinoIcons.bell,
                     onTap: () {},
                     trailing: true,
@@ -58,8 +58,8 @@ class SettingPage extends StatelessWidget {
                       height: 1,
                       color: Colors.grey.shade300),
                   settingItem(
-                    subTitle: "your_location".tr,
-                    title: provider.userModel!.location!,
+                    subTitle: "Your Location",
+                    title: provider.user!.location!,
                     icon: CupertinoIcons.location_fill,
                     onTap: () {},
                   ),
@@ -78,14 +78,15 @@ class SettingPage extends StatelessWidget {
                       height: 1,
                       color: Colors.grey.shade300),
                   settingItem(
-                    subTitle: "terms".tr,
+                    subTitle: "Terms & Conditions",
                     icon: CupertinoIcons.infinite,
                     onTap: () async {
                       const url = "https://flutter.io";
                       if (await canLaunchUrl(Uri.parse(url))) {
                         await launchUrl(Uri.parse(url));
-                      } else
+                      } else {
                         throw "Could not launch $url";
+                      }
                     },
                   ),
                   Container(
@@ -99,8 +100,9 @@ class SettingPage extends StatelessWidget {
                       const url = "https://flutter.io";
                       if (await canLaunchUrl(Uri.parse(url))) {
                         await launchUrl(Uri.parse(url));
-                      } else
+                      } else {
                         throw "Could not launch $url";
+                      }
                     },
                   ),
                   Container(
@@ -108,28 +110,11 @@ class SettingPage extends StatelessWidget {
                       height: 1,
                       color: Colors.grey.shade300),
                   settingItem(
-                    subTitle: "help".tr,
+                    subTitle: "Help & Support",
                     icon: Icons.question_mark_rounded,
                     onTap: () {
                       _contractAdmin(context);
                     },
-                  ),
-                  Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      height: 1,
-                      color: Colors.grey.shade300),
-                  settingItem(
-                      subTitle: "logout".tr,
-                      icon: Icons.logout_rounded,
-                      onTap: () {
-                        AuthService.logout().then((value) {
-                          Get.to(() => const RedirectPage());
-                        });
-                      }),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    height: 1,
-                    color: Colors.grey.shade300,
                   ),
                 ],
               ),
@@ -140,44 +125,31 @@ class SettingPage extends StatelessWidget {
     );
   }
 
-  Padding settingItem(
+  ListTile settingItem(
       {required IconData icon,
       required String subTitle,
       String title = '',
       required Function() onTap,
       bool trailing = false}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ListTile(
-        onTap: onTap,
-        trailing: trailing
-            ? GetX<HomeController>(
-                builder: (controller) => CupertinoSwitch(
-                  onChanged: (value) {
-                    controller.saveNotiValue();
-                  },
-                  value: controller.notificationStatusValue.value,
-                ),
-              )
-            : null,
-        leading: Icon(icon, size: 40, color: Colors.grey),
-        title: Text(
-          title == "" ? subTitle : title,
-          style: TextStyle(
-              color: title == "" ? Colors.grey : Colors.grey.shade400,
-              fontSize: title == "" ? 16 : 12,
-              fontWeight: title == "" ? FontWeight.bold : null),
-        ),
-        subtitle: title == ""
-            ? null
-            : Text(
-                subTitle,
-                style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              ),
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(icon, size: 30, color: Colors.black),
+      title: Text(
+        title == "" ? subTitle : title,
+        style: TextStyle(
+            color: title == "" ? Colors.black : Colors.grey.shade400,
+            fontSize: title == "" ? 16 : 12,
+            fontWeight: title == "" ? FontWeight.bold : null),
       ),
+      subtitle: title == ""
+          ? null
+          : Text(
+              subTitle,
+              style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
+            ),
     );
   }
 
@@ -213,99 +185,46 @@ class SettingPage extends StatelessWidget {
   void _contractAdmin(BuildContext context) {
     showBottomSheet(
       context: context,
-      builder: (context) => Consumer<AdminProvider>(
-        builder: (context, adminProvider, child) => Container(
-          height: Get.height / 2,
-          width: Get.width,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(30),
-              topLeft: Radius.circular(30),
+      builder: (context) => Container(
+        height: Get.height / 2,
+        width: Get.width,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(30),
+            topLeft: Radius.circular(30),
+          ),
+        ),
+        child: ListView(
+          children: [
+            IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(
+                CupertinoIcons.chevron_down_circle_fill,
+                color: Colors.orangeAccent,
+                size: 32,
+              ),
             ),
-          ),
-          child: ListView(
-            children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(
-                  CupertinoIcons.chevron_down_circle_fill,
-                  color: Colors.orangeAccent,
-                  size: 32,
-                ),
+            const SizedBox(height: 20),
+            Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.orangeAccent,
+                borderRadius: BorderRadius.circular(30),
               ),
-              const SizedBox(height: 20),
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.orangeAccent,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Text(
-                  "Contract Of Admin List :",
-                  style: TextStyle(color: Colors.white),
-                ),
+              child: const Text(
+                "Contract Of Admin List :",
+                style: TextStyle(color: Colors.white),
               ),
-              const SizedBox(height: 30),
-              adminProvider.adminUserList.isNotEmpty
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: adminProvider.adminUserList
-                          .map((userModel) => Container(
-                                margin: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.red,
-                                      width: 2,
-                                    ),
-                                    borderRadius: BorderRadius.circular(20)),
-                                child: ListTile(
-                                  onTap: () {
-                                    Get.to(ChatPage(senderUseModel: userModel),
-                                        transition:
-                                            Transition.leftToRightWithFade);
-                                  },
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  title: Text(
-                                      userModel.name ?? userModel.phoneNumber),
-                                  subtitle:
-                                      Text(userModel.email ?? userModel.uid),
-                                  leading: userModel.profileUrl != null
-                                      ? ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(50),
-                                          child: CachedNetworkImage(
-                                            imageUrl: userModel.profileUrl!,
-                                            width: 50,
-                                            height: 50,
-                                            placeholder: (context, url) =>
-                                                CircularProgressIndicator(),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    Icon(Icons.error),
-                                          ),
-                                        )
-                                      : TextAvatar(
-                                          text: userModel.name,
-                                        ),
-                                  trailing: const Icon(
-                                    Icons.message,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                    )
-                  : Center(
-                      child: Text("No Admin Fount Try Again later"),
-                    )
-            ],
-          ),
+            ),
+            const SizedBox(height: 30),
+            const Center(
+              child: Text("No Admin Fount Try Again later"),
+            )
+          ],
         ),
       ),
     );

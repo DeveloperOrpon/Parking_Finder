@@ -172,11 +172,11 @@ class ProfileInformationSetPage extends StatelessWidget {
                         : () {
                             if (infoKey.currentState!.validate()) {
                               if (loginProvider.dob == null) {
-                                showErrorToastMessage("Enter Date Of Birth");
+                                showErrorToastMessage(message: "Enter Date Of Birth");
                                 return;
                               }
                               if (loginProvider.pickImagePath == null) {
-                                showErrorToastMessage("Select Image");
+                                showErrorToastMessage(message: "Select Image");
                                 return;
                               }
                               loginProvider.buttonDeactive = true;

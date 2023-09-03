@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:parking_finder/controller/GarageController.dart';
+import 'package:parking_finder/controller/ParkingController.dart';
 import 'package:parking_finder/pages/Delegate/Searchdelegate.dart';
 import 'package:parking_finder/providers/user_provider.dart';
 import 'package:parking_finder/utilities/app_colors.dart';
@@ -14,6 +17,8 @@ class ParkingListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final garageController = Get.put(GarageController());
+    final parkingController = Get.put(ParkingController());
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -33,7 +38,9 @@ class ParkingListPage extends StatelessWidget {
           actions: [
             InkWell(
               onTap: () {
-                showSearch(context: context, delegate: ParkingSearchDelegate());
+                showSearch(
+                    context: context,
+                    delegate: ParkingSearchDelegate(garageController));
               },
               child: Container(
                 margin: const EdgeInsets.all(8),
@@ -61,10 +68,20 @@ class ParkingListPage extends StatelessWidget {
             )
           ],
         ),
-        SliverList(
+        Obx(() {
+          return SliverList(
             delegate: SliverChildBuilderDelegate(
-                (context, index) => const ParkingTileUi(),
-                childCount: 20)),
+              (context, index) {
+                final parking = garageController.allActiveParking[index];
+                return ParkingTileUi(
+                  parkingModel: parking,
+                  garageModel: null,
+                );
+              },
+              childCount: garageController.allActiveParking.length,
+            ),
+          );
+        }),
         SliverList(
             delegate: SliverChildListDelegate([
           const SizedBox(

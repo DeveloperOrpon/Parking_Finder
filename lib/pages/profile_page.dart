@@ -9,6 +9,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:parking_finder/pages/login_page.dart';
 import 'package:parking_finder/pages/select_vehicle_page.dart';
+import 'package:parking_finder/pages/setting_page.dart';
 import 'package:parking_finder/providers/user_provider.dart';
 import 'package:parking_finder/utilities/diaglog.dart';
 import 'package:parking_finder/utilities/testStyle.dart';
@@ -62,12 +63,12 @@ class ProfilePage extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: userProvider.user!.profileImage != null
+                      child: userProvider.user!.profileUrl != null
                           ? CachedNetworkImage(
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
-                              imageUrl: "${userProvider.user!.profileImage}",
+                              imageUrl: "${userProvider.user!.profileUrl}",
                               progressIndicatorBuilder:
                                   (context, url, downloadProgress) =>
                                       SpinKitSpinningLines(
@@ -87,7 +88,7 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 10),
             if (userProvider.user != null)
               Text(
-                "${userProvider.user!.username}",
+                "${userProvider.user!.name}",
                 style: blackBoldText,
               ),
             if (userProvider.user != null)
@@ -102,7 +103,7 @@ class ProfilePage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (userProvider.user!.isEmailVerified!)
+                  if (userProvider.user!.isUserVerified!)
                     const Icon(
                       Icons.verified,
                       color: Colors.green,
@@ -162,6 +163,10 @@ class ProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             ListTile(
+              onTap: () {
+                Get.to(const SettingPage(),
+                    transition: Transition.leftToRightWithFade);
+              },
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -255,7 +260,7 @@ class ProfilePage extends StatelessWidget {
                 opacity: 0,
                 curve: Curves.easeInOutCubic,
                 child: Text(
-                  "Privacy & Policy",
+                  "Booking Information",
                   style: blackBoldText,
                 ),
               ),
@@ -324,7 +329,7 @@ class ProfilePage extends StatelessWidget {
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.decelerate,
                   child: Icon(
-                    Icons.logout,
+                    Icons.monetization_on,
                     color: AppColors.primaryColor,
                   ),
                 ),
@@ -335,7 +340,7 @@ class ProfilePage extends StatelessWidget {
                 opacity: 0,
                 curve: Curves.easeInOutCubic,
                 child: Text(
-                  "LogOut",
+                  "Transition Information",
                   style: blackBoldText,
                 ),
               ),

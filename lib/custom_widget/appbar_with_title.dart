@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:parking_finder/providers/user_provider.dart';
 import 'package:parking_finder/utilities/appConst.dart';
 
@@ -78,6 +80,8 @@ AppBar appBarWithTitleSubTitleWhiteBG({
   required String title,
   required String subTitle,
   bool isLeading = true,
+  bool isOnlineImage = false,
+  String imageUrl = '',
 }) {
   return AppBar(
     backgroundColor: Colors.white,
@@ -112,16 +116,34 @@ AppBar appBarWithTitleSubTitleWhiteBG({
             ),
           )
         : null,
-    actions: const [
-      Padding(
-        padding: EdgeInsets.only(right: 18.0),
-        child: CircleAvatar(
-          radius: 20,
-          backgroundImage: AssetImage(
-            appLogo,
-          ),
-        ),
-      )
+    actions: [
+      !isOnlineImage
+          ? const Padding(
+              padding: EdgeInsets.only(right: 18.0),
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: AssetImage(
+                  appLogo,
+                ),
+              ),
+            )
+          : Padding(
+              padding: EdgeInsets.only(right: 18.0),
+              child: CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: imageUrl,
+                imageBuilder: (context, imageProvider) {
+                  return CircleAvatar(
+                      radius: 20, backgroundImage: imageProvider);
+                },
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    SpinKitSpinningLines(
+                  color: AppColors.primaryColor,
+                  size: 50.0,
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            )
     ],
   );
 }

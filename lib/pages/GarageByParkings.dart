@@ -1,12 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:parking_finder/custom_widget/ParkingTileUi.dart';
+import 'package:parking_finder/model/garage_model.dart';
+import 'package:parking_finder/pages/GarageOwner/updateGarage.dart';
 
+import '../database/dbhelper.dart';
+import '../model/parking_model.dart';
+import '../utilities/app_colors.dart';
 import '../utilities/testStyle.dart';
 
 class GarageByParking extends StatelessWidget {
-  const GarageByParking({Key? key}) : super(key: key);
+  final GarageModel garageModel;
+  const GarageByParking({Key? key, required this.garageModel})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,14 +36,19 @@ class GarageByParking extends StatelessWidget {
               color: Colors.black,
             )),
         title: Text(
-          "Garage Of Mirpur",
+          garageModel.name,
           style: continueBlackTextStyle,
         ),
         actions: [
           Center(
               child: Padding(
             padding: const EdgeInsets.only(right: 8.0),
-            child: OutlinedButton(onPressed: () {}, child: Text("Edit")),
+            child: OutlinedButton(
+                onPressed: () {
+                  Get.to(UpdateGaragePage(garageModel: garageModel),
+                      transition: Transition.fadeIn);
+                },
+                child: Text("Edit")),
           ))
         ],
       ),
@@ -45,19 +58,20 @@ class GarageByParking extends StatelessWidget {
               delegate: SliverChildListDelegate([
             CircleAvatar(
               radius: 50,
+              backgroundImage: NetworkImage(garageModel.coverImage[0]),
             ),
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(top: 12, bottom: 4),
                 child: Text(
-                  "Mirpur Garage 10",
+                  garageModel.name,
                   style: linkTextStyle,
                 ),
               ),
             ),
             Center(
               child: Text(
-                "Mirpur Mirpur 10, Dhaka",
+                "${garageModel.city},${garageModel.division},(${garageModel.address})",
                 style: grayLowSmallColor,
               ),
             ),
@@ -72,10 +86,36 @@ class GarageByParking extends StatelessWidget {
               ),
             ),
           ])),
-          SliverList(
-              delegate: SliverChildBuilderDelegate(
-                  (context, index) => ParkingTileUi(),
-                  childCount: 20))
+          SliverFillRemaining(
+            child: FutureBuilder(
+                future: DbHelper.getAllParkingPointGet(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error = ${snapshot.error}');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CupertinoActivityIndicator(
+                      radius: 30,
+                      color: AppColors.primaryColor,
+                    );
+                  }
+                  List<ParkingModel> parkingModels = List.generate(
+                      snapshot.data!.docs.length,
+                      (index) => ParkingModel.fromMap(
+                          snapshot.data!.docs[index].data()));
+                  List<ParkingModel> thisGarageParking = parkingModels
+                      .where((element) => element.gId == garageModel.gId)
+                      .toList();
+                  return ListView.builder(
+                    itemCount: thisGarageParking.length,
+                    itemBuilder: (context, index) {
+                      ParkingModel parkingModel = thisGarageParking[index];
+                      return ParkingTileUi(
+                          parkingModel: parkingModel, garageModel: garageModel);
+                    },
+                  );
+                }),
+          )
         ],
       ),
     );

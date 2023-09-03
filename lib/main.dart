@@ -6,14 +6,16 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:parking_finder/custom_widget/navigation_drawer.dart';
 import 'package:parking_finder/pages/welcome_page.dart';
 import 'package:parking_finder/providers/booking_provider.dart';
 import 'package:parking_finder/providers/login_provider.dart';
 import 'package:parking_finder/providers/map_provider.dart';
 import 'package:parking_finder/providers/parking_provider.dart';
 import 'package:parking_finder/providers/user_provider.dart';
+import 'package:parking_finder/services/Auth_service.dart';
 import 'package:parking_finder/utilities/appConst.dart';
 import 'package:parking_finder/utilities/diaglog.dart';
 import 'package:provider/provider.dart';
@@ -21,12 +23,31 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
+  ErrorWidget.builder = (details) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Center(child: Text("Some Thing Error Happened")),
+          Center(
+            child: OutlinedButton(
+                onPressed: () {
+                  Get.offAll(const CustomNavigationDrawer(),
+                      transition: Transition.fadeIn);
+                },
+                child: const Text("Refresh")),
+          )
+        ],
+      ),
+    );
+  };
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final fcmToken = await FirebaseMessaging.instance.getToken();
   log("FCMToken : $fcmToken");
+  AuthService.fcmToken = fcmToken;
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => LoginProvider()),
     ChangeNotifierProvider(create: (context) => MapProvider()),
@@ -47,7 +68,8 @@ class MyApp extends StatelessWidget {
       systemNavigationBarColor: Colors.black, // navigation bar color
       statusBarColor: Colors.black12, // status bar color
     ));
-    // AuthenticateService.logout();
+
+    // AuthService.logout();
     return GetMaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,

@@ -1,20 +1,18 @@
-import 'dart:convert' as convert;
-import 'dart:developer';
-
 import 'package:animated_emoji/emoji.dart';
 import 'package:animated_emoji/emojis.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:parking_finder/database/dbhelper.dart';
 import 'package:parking_finder/preference/user_preference.dart';
 import 'package:parking_finder/utilities/appConst.dart';
 import 'package:parking_finder/utilities/testStyle.dart';
 import 'package:provider/provider.dart';
 
 import '../custom_widget/navigation_drawer.dart';
-import '../model/user_model.dart';
 import '../providers/map_provider.dart';
 import '../providers/user_provider.dart';
+import '../services/Auth_service.dart';
 import '../utilities/diaglog.dart';
 import 'login_page.dart';
 import 'onboarding_page.dart';
@@ -29,28 +27,13 @@ class WelcomePage extends StatelessWidget {
       const Duration(seconds: 1),
       () async {
         final provider = Provider.of<UserProvider>(context, listen: false);
+        Provider.of<MapProvider>(context, listen: false).mapParkingIcon();
+        Provider.of<MapProvider>(context, listen: false).getCurrentLocation();
         bool isShowOnboarding = await getOnboardingStatus();
-        bool isLogin = await getLoginStatus();
-
-        log("isLoginState : $isLogin");
-
-        if (isLogin) {
-          final jwtToken = await getJWTToken();
-          final userInfo = await getUserInfo();
-          final searchList = await provider.getSearchAllList();
-
-          log("jwtToken : $jwtToken");
-          log("SearchList : $searchList");
-          log("UserInfo $userInfo");
-          Provider.of<MapProvider>(context, listen: false).mapParkingIcon();
-          Provider.of<MapProvider>(context, listen: false).getCurrentLocation();
-          var jsonResponse =
-              convert.jsonDecode(userInfo) as Map<String, dynamic>;
-          log(jsonResponse.runtimeType.toString());
-          UserModel userModel = UserModel.fromJson(jsonResponse);
-          log("UserModel ${userModel.email}");
-          provider.user = userModel;
-          provider.jwtToken = jwtToken;
+        if (AuthService.currentUser != null) {
+          await provider.getUserInfo();
+          await DbHelper.updateUserProfileField(AuthService.currentUser!.uid,
+              {'fcmToken': AuthService.fcmToken ?? ""});
           EasyLoading.dismiss();
           Get.offAll(const CustomNavigationDrawer(),
               transition: Transition.fadeIn);

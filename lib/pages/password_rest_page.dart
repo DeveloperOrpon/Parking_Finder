@@ -157,7 +157,7 @@ class PasswordRestPage extends StatelessWidget {
                     focusNodeOne.unfocus();
                     if (formKey.currentState!.validate()) {
                       if (controllerOne.text != controllerTwo.text) {
-                        showErrorToastMessage("Password Not Match");
+                        showErrorToastMessage(message: "Password Not Match");
                         return;
                       }
                       AuthenticateService.restPassword(

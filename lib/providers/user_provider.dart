@@ -1,4 +1,3 @@
-import 'dart:convert' as convert;
 import 'dart:developer';
 
 import 'package:extended_phone_number_input/phone_number_controller.dart';
@@ -9,8 +8,10 @@ import 'package:image_picker/image_picker.dart';
 //import 'package:package_info_plus/package_info_plus.dart';
 import 'package:parking_finder/model/user_model.dart';
 
+import '../database/dbhelper.dart';
+import '../model/garage_model.dart';
 import '../preference/search_preference.dart';
-import '../preference/user_preference.dart';
+import '../services/Auth_service.dart';
 import '../utilities/helper_function.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -109,14 +110,16 @@ class UserProvider extends ChangeNotifier {
   }
 
   intController(BuildContext context) {
-    fullNameController = TextEditingController(text: user!.username);
-    addressController = TextEditingController(text: user!.address ?? "");
+    userLicenceImgUrl = null;
+    pickImagePath = null;
+    fullNameController = TextEditingController(text: user!.name);
+    addressController = TextEditingController(text: user!.location ?? "");
     emailController = TextEditingController(text: user!.email);
     phoneController = PhoneNumberInputController(context);
-    phoneController.phoneNumber = user!.phoneNo!;
-    dob = user!.dob ?? "DOB NOT SET";
-    selectGender = user!.gender ?? "NOT SET";
-    nidController = TextEditingController(text: user!.nidImage ?? '000');
+    phoneController.phoneNumber = user!.phoneNumber;
+    dob = "DOB NOT SET";
+    selectGender = user!.gender!;
+    nidController = TextEditingController(text: user!.nId ?? '000');
   }
 
   getDatePicker(BuildContext context) async {
@@ -151,6 +154,7 @@ class UserProvider extends ChangeNotifier {
     if (croppedImage != null) {
       if (isSaveProfile) pickImagePath = croppedImage.path;
       if (!isSaveProfile) userLicenceImgUrl = croppedImage.path;
+      log("pickImagePath $pickImagePath -userLicenceImgUrl  $userLicenceImgUrl");
       notifyListeners();
     }
   }
@@ -182,13 +186,13 @@ class UserProvider extends ChangeNotifier {
     });
   }
 
-  getUserFromSharePref() async {
-    final userInfo = await getUserInfo();
-    var jsonResponse = convert.jsonDecode(userInfo) as Map<String, dynamic>;
-    UserModel newUserModel = UserModel.fromJson(jsonResponse);
-    user = newUserModel;
-    notifyListeners();
-  }
+  // getUserFromSharePref() async {
+  //   final userInfo = await getUserInfo();
+  //   var jsonResponse = convert.jsonDecode(userInfo) as Map<String, dynamic>;
+  //   UserModel newUserModel = UserModel.fromMap(jsonResponse);
+  //   user = newUserModel;
+  //   notifyListeners();
+  // }
 
   disposeController() {
     fullNameController.dispose();
@@ -205,5 +209,13 @@ class UserProvider extends ChangeNotifier {
     userLicenceImgUrl = null;
     pickImagePath = null;
     addressController.text = '';
+  }
+  Future<void> getUserInfo() async {
+    log("message");
+    DbHelper.getUserInfo(AuthService.currentUser!.uid).listen((snapshot) {
+      user = UserModel.fromMap(snapshot.data()!);
+      notifyListeners();
+      return;
+    });
   }
 }

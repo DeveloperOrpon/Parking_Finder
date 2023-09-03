@@ -186,7 +186,7 @@ class AuthenticateService {
           transition: Transition.fade, arguments: code);
     } else {
       EasyLoading.dismiss();
-      showErrorToastMessage("OTP not Match. Try Again Later");
+      showErrorToastMessage(message: "OTP not Match. Try Again Later");
     }
   }
 
@@ -211,7 +211,7 @@ class AuthenticateService {
       Get.to(const LoginPage(), transition: Transition.fade);
     } else {
       EasyLoading.dismiss();
-      showErrorToastMessage("Ops Reset Failed. Try Again Later");
+      showErrorToastMessage(message: "Ops Reset Failed. Try Again Later");
     }
   }
 
@@ -266,7 +266,7 @@ class AuthenticateService {
       String email, BuildContext context) async {
     var jwtToken = await getJWTToken();
     // startLoading("Updating Info Wait..");
-    Map<String, dynamic> map = userinfo.toJson();
+    Map<String, dynamic> map = userinfo.toMap();
     map.removeWhere((key, value) => value == null);
     // var header = {
     //   "Authorization": "Bearer $jwtToken",
@@ -288,7 +288,7 @@ class AuthenticateService {
         var jsonResponse =
             convert.jsonDecode(response.body) as Map<String, dynamic>;
         setUserInfo(convert.jsonEncode(jsonResponse['updatedUser']));
-        userProvider.getUserFromSharePref();
+        // userProvider.getUserFromSharePref();
         EasyLoading.dismiss();
         Fluttertoast.showToast(
             msg: "Update Successful",

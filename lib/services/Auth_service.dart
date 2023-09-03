@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   static UserCredential? userCredential;
+  static String? fcmToken;
   static final auth = FirebaseAuth.instance;
   static User? get currentUser => auth.currentUser;
   static Future<void> logout() async {

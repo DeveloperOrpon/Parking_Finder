@@ -1,24 +1,23 @@
 import 'dart:async';
-import 'dart:convert' as convert;
 import 'dart:developer';
 
-import 'package:dio/dio.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:marker_icon/marker_icon.dart';
+import 'package:parking_finder/database/dbhelper.dart';
 import 'package:parking_finder/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../api/api_const.dart';
 import '../api/authenticate_service.dart';
-import '../model/user_model.dart';
-import '../preference/user_preference.dart';
+import '../model/garage_model.dart';
 import '../utilities/diaglog.dart';
 
 class MapProvider extends ChangeNotifier {
@@ -115,7 +114,10 @@ class MapProvider extends ChangeNotifier {
     ));
   }
 
+  late LatLng selectLatLon;
+
   getLatLngToAddress(LatLng latLng) async {
+    selectLatLon = latLng;
     placemarks = await geocoding.placemarkFromCoordinates(
         latLng.latitude, latLng.longitude);
     log("Address ${placemarks!.last.street}");
@@ -186,70 +188,53 @@ class MapProvider extends ChangeNotifier {
           fontSize: 16.0);
       return;
     }
+    startLoading('Please Wait');
+    int perfloorSpace = (num.parse(totalSlotController.text).toInt()) ~/
+        (num.parse(numberOfFloorController.text).toInt());
+    List<FloorModel> floorDetails = List.generate(
+        num.parse(numberOfFloorController.text).toInt(),
+        (index) => FloorModel(
+            floorNumber: index.toString(),
+            spotInformation: List.generate(
+                perfloorSpace,
+                (index2) => SpotInformation(
+                      floor: index.toString(),
+                      spotName: "SP-$index2",
+                      spotId: DateTime.now().millisecondsSinceEpoch.toString(),
+                      isBooked: false,
+                    ))));
+
     final garageModel = GarageModel(
+      floorDetails: floorDetails,
+      lat: selectLatLon.latitude.toString(),
+      lon: selectLatLon.longitude.toString(),
+      rating: '0.0',
       facilities: garageFacility,
       availableSpace: totalSlotController.text,
       totalFloor: numberOfFloorController.text,
       gId: DateTime.now().millisecondsSinceEpoch.toString(),
       name: garageNameController.text,
       coverImage: imagesOfGarage,
-      ownerUId: userProvider.user!.id!,
+      ownerUId: userProvider.user!.uid!,
       address: garageAddressController.text,
       division: "${placemarks!.last.street},${placemarks?.first.subLocality}",
       city: placemarks?.first.administrativeArea ?? '',
       parkingCategoryList: [],
       totalSpace: totalSlotController.text,
-      createTime: DateTime.now().millisecondsSinceEpoch.toString(),
+      createTime: Timestamp.now(),
       additionalInformation: garageAddInfoController.text,
     );
-    log("garageModel : ${garageModel.toJson()}");
-
-    //start
-    startLoading("Please Wait");
-    List<Map<String, dynamic>> myGarageMap = [];
-    myGarageMap.add(garageModel.toJson());
-    if (userProvider.user!.vicList!.isNotEmpty) {
-      for (GarageModel garage in userProvider.user!.garazList!) {
-        myGarageMap.add(garage.toJson());
-      }
-    }
-
-    Map<String, dynamic> updateMap = {"garaz_list": myGarageMap};
-
-    log("map : $updateMap");
-
     try {
-      Response response = await Dio().patch(
-          '$baseUrl/user/update/profile/${userProvider.user!.email}',
-          data: updateMap);
-      if (response.statusCode == 200) {
-        Map<String, dynamic> jsonResponse = response.data;
-        setUserInfo(convert.jsonEncode(jsonResponse['updatedUser']));
-        userProvider.getUserFromSharePref();
-        EasyLoading.dismiss();
-        clear();
-        Navigator.pop(context);
-        Navigator.pop(context);
-        Fluttertoast.showToast(
-            msg: "Garage Added Successful",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      }
-    } on DioException catch (error) {
-      log("ERROR ${error.toString()}");
+      await DbHelper.addGarageInfo(garageModel);
       EasyLoading.dismiss();
-      Fluttertoast.showToast(
-          msg: error.toString(),
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      Get.back();
+      Get.back();
+      clear();
+      showCorrectToastMessage(
+          "Your Garage Added Successfully.Wait To Approved");
+    } on FirebaseException catch (error) {
+      EasyLoading.dismiss();
+      showErrorToastMessage();
     }
   }
 

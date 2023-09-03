@@ -21,16 +21,27 @@ class SupportPage extends StatelessWidget {
           Container(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 18.0, top: 10, bottom: 10),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              padding: const EdgeInsets.only(
+                  left: 18.0, top: 10, bottom: 10, right: 18),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Support", style: blackBoldText),
-                  const SizedBox(height: 5),
-                  const Text(
-                    "Connect Us",
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("Support", style: blackBoldText),
+                      const SizedBox(height: 5),
+                      const Text(
+                        "Connect Us",
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                    ],
                   ),
+                  OutlinedButton(
+                      onPressed: () {
+                        _contractAdmin(context);
+                      },
+                      child: const Text("Chat With Admin"))
                 ],
               ),
             ),
@@ -39,7 +50,7 @@ class SupportPage extends StatelessWidget {
             children: [
               Container(
                 alignment: Alignment.topCenter,
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 height: Get.width * .4,
                 width: Get.width,
                 decoration: BoxDecoration(
@@ -135,6 +146,53 @@ class SupportPage extends StatelessWidget {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  void _contractAdmin(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        height: Get.height / 2,
+        width: Get.width,
+        decoration: const BoxDecoration(
+          color: AppColors.primarySoft,
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(30),
+            topLeft: Radius.circular(30),
+          ),
+        ),
+        child: ListView(
+          children: [
+            IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(
+                CupertinoIcons.chevron_down_circle_fill,
+                color: AppColors.primaryColor,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.primaryColor,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: const Text(
+                "Contract Of Admin List :",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 30),
+            const Center(
+              child: Text("No Admin Fount Try Again later"),
+            )
+          ],
+        ),
       ),
     );
   }

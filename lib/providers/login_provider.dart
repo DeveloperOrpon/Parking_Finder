@@ -1,14 +1,20 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:parking_finder/api/fire_base_auth.dart';
 import 'package:parking_finder/utilities/diaglog.dart';
 
 import '../api/authenticate_service.dart';
+import '../database/dbhelper.dart';
+import '../model/user_model.dart';
+import '../pages/welcome_page.dart';
+import '../services/Auth_service.dart';
 import '../utilities/helper_function.dart';
 
 class LoginProvider extends ChangeNotifier {
@@ -106,30 +112,36 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-  void registrationUser(LoginProvider loginProvider) {
-    // Userinfo userinfo = Userinfo(
-    //   username: fullNameController.text,
-    //   // nickName: nickNameController.text,
-    //   contNo: phoneNumber ?? "",
-    //   profileImage: pickImagePath ?? "",
-    //   // isVerified: "",
-    //   licenceImage: "",
-    //   nidImage: "",
-    //   role: "",
-    // );
-    // var userModel = UserModel(
-    //   email: emailController.text,
-    //   password: passwordController.text,
-    //   userinfo: [userinfo],
-    // );
-    // log("${userModel.toJson()}");
-    Map<String, dynamic> userJson = {
-      "username": nameController.text,
-      "email": emailController.text,
-      "password": passwordController.text,
-    };
+  registrationUser(LoginProvider loginProvider) async {
+    try {
+      startLoading("Creating Account");
+      UserCredential userCredential = await AuthService.auth
+          .createUserWithEmailAndPassword(
+              email: emailController.text, password: passwordController.text);
+      final userModel = UserModel(
+        accountActive: true,
+        email: emailController.text,
+        nId: '',
+        uid: userCredential.user!.uid,
+        phoneNumber: '',
+        createTime: Timestamp.now(),
+        isGarageOwner: true,
+        name: nameController.text,
+        location: '',
+      );
+      emailController.text = '';
+      passwordController.text = '';
+      nameController.text = '';
+      await DbHelper.addUser(userModel);
 
-    AuthenticateService.userRegistration(userJson, loginProvider);
+      EasyLoading.dismiss();
+      showCorrectToastMessage("Account Create Successfully");
+      Get.to(const WelcomePage(), transition: Transition.fadeIn);
+    } on FirebaseException catch (error) {
+      log(error.toString());
+      EasyLoading.dismiss();
+      showErrorToastMessage(message: error.toString());
+    }
   }
 
   Future<void> logInWithGoogle(
@@ -168,7 +180,7 @@ class LoginProvider extends ChangeNotifier {
       },
       verificationFailed: (FirebaseAuthException e) {
         log('Verification Failed : ${e.toString()}');
-        showErrorToastMessage("SomeThing Error TryAgain Latter");
+        showErrorToastMessage(message: "SomeThing Error TryAgain Latter");
         Navigator.pop(context);
       },
       codeSent: (String verificationId, int? resendToken) {
@@ -194,7 +206,7 @@ class LoginProvider extends ChangeNotifier {
         EasyLoading.dismiss();
       }).catchError((onError) {
         EasyLoading.dismiss();
-        showErrorToastMessage("Code Wrong");
+        showErrorToastMessage(message: "Code Wrong");
         log("Code Wrong");
       });
     }
@@ -217,5 +229,25 @@ class LoginProvider extends ChangeNotifier {
     fullNameController.dispose();
     nickNameController.dispose();
     addressController.dispose();
+  }
+
+  ///Firebase
+  Future<void> userLogin(
+      String email, String password, LoginProvider loginProvider) async {
+    try {
+      UserCredential userCredential = await AuthService.auth
+          .signInWithEmailAndPassword(email: email, password: password);
+      if (await DbHelper.doesUserExist(userCredential.user!.uid)) {
+        showCorrectToastMessage("Login Successfully");
+        loginProvider.buttonDeactive = false;
+        EasyLoading.dismiss();
+        Get.to(const WelcomePage(), transition: Transition.fadeIn);
+      }
+    } on FirebaseException catch (error) {
+      log(error.toString());
+      loginProvider.buttonDeactive = false;
+      EasyLoading.dismiss();
+      showErrorToastMessage(message: error.toString());
+    }
   }
 }

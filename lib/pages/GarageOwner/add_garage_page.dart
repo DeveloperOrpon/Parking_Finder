@@ -127,6 +127,7 @@ class AddGaragePage extends StatelessWidget {
   }
 
   void _showBottomSheet(BuildContext context) {
+    final scrollController = ScrollController();
     int currentPage = 0;
     showModalBottomSheet(
         isDismissible: false,
@@ -137,30 +138,250 @@ class AddGaragePage extends StatelessWidget {
           return StatefulBuilder(builder: (context, setState) {
             return Consumer<MapProvider>(
               builder: (context, mapProvider, child) {
-                return Form(
-                  key: mapProvider.formKey,
-                  child: Container(
-                    height: Get.height * .84,
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(40),
-                        topRight: Radius.circular(40),
+                return GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                  },
+                  child: Form(
+                    key: mapProvider.formKey,
+                    child: Container(
+                      height: Get.height * .84,
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
                       ),
-                    ),
-                    child: Stack(
-                      children: [
-                        PageView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          scrollBehavior: const ScrollBehavior(),
-                          controller: mapProvider.addGarageController,
-                          children: [
-                            ListView(
-                              children: [
-                                InkWell(
-                                  onTap: () => Get.back(),
-                                  child: Container(
+                      child: Stack(
+                        children: [
+                          PageView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            scrollBehavior: const ScrollBehavior(),
+                            controller: mapProvider.addGarageController,
+                            children: [
+                              ListView(
+                                controller: scrollController,
+                                physics: BouncingScrollPhysics(),
+                                children: [
+                                  InkWell(
+                                    onTap: () => Get.back(),
+                                    child: Container(
+                                      margin: EdgeInsets.only(
+                                          top: 10,
+                                          bottom: 10,
+                                          left: Get.width * .3,
+                                          right: Get.width * .3),
+                                      height: 4,
+                                      width: 50,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryColor,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                    ),
+                                  ),
+                                  Text("Name of spot",
+                                      style: blackBoldSmallText),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 3.0),
+                                    child: TextFormField(
+                                      controller:
+                                          mapProvider.garageNameController,
+                                      decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.grey.shade100,
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.grey, width: 1),
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.grey, width: 1),
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                          ),
+                                          hintText: "Garage Name Of Your",
+                                          hintStyle: const TextStyle(
+                                              color: Colors.grey),
+                                          helperText:
+                                              "Please do not mention the parking spot number here",
+                                          helperStyle: TextStyle(
+                                            color: Colors.red.shade200,
+                                            fontSize: 12,
+                                          )),
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Input Your Garage name';
+                                        }
+
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                  Text("Address", style: blackBoldSmallText),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4.0),
+                                    child: TextFormField(
+                                      controller:
+                                          mapProvider.garageAddressController,
+                                      maxLines: 1,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.grey.shade100,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              color: Colors.grey, width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              color: Colors.grey, width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                        ),
+                                        hintText: "Garage Address",
+                                        hintStyle:
+                                            const TextStyle(color: Colors.grey),
+                                        helperText:
+                                            "Your address will not visible to drivers still they book your spot",
+                                        helperStyle: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Input Garage Address name';
+                                        }
+
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                  Text("Additional Information",
+                                      style: blackBoldSmallText),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4.0),
+                                    child: TextFormField(
+                                      controller:
+                                          mapProvider.garageAddInfoController,
+                                      maxLines: 2,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.grey.shade100,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              color: Colors.grey, width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderSide: const BorderSide(
+                                              color: Colors.grey, width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                        ),
+                                        hintText: "Additional Information",
+                                        hintStyle:
+                                            const TextStyle(color: Colors.grey),
+                                        helperStyle: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Input Garage Address name';
+                                        }
+
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "No. of vacancies : ",
+                                        style: blackBoldSmallText,
+                                      ),
+                                      SizedBox(
+                                        width: 70,
+                                        height: 60,
+                                        child: TextFormField(
+                                          onTap: () {
+                                            scrollController.animateTo(
+                                                scrollController
+                                                    .position.maxScrollExtent,
+                                                duration:
+                                                    Duration(milliseconds: 400),
+                                                curve: Curves.bounceIn);
+                                          },
+                                          controller:
+                                              mapProvider.totalSlotController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                            hintText: "Slot",
+                                            hintStyle: const TextStyle(
+                                                color: Colors.grey),
+                                            filled: true,
+                                            fillColor: Colors.grey.shade100,
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.grey, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.grey, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                            ),
+                                          ),
+                                          validator: (value) {
+                                            if (value!.isEmpty) {
+                                              return 'Input slot';
+                                            }
+
+                                            return null;
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        top: 10, bottom: 10),
+                                    height: 100,
+                                    width: Get.width,
+                                    child: GoogleMap(
+                                      zoomControlsEnabled: false,
+                                      zoomGesturesEnabled: false,
+                                      scrollGesturesEnabled: false,
+                                      mapType: MapType.hybrid,
+                                      initialCameraPosition: CameraPosition(
+                                        target: mapProvider.selectPosition,
+                                        zoom: 15.5,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 250,
+                                  )
+                                ],
+                              ),
+                              ListView(
+                                children: [
+                                  Container(
                                     margin: EdgeInsets.only(
                                         top: 10,
                                         bottom: 10,
@@ -173,626 +394,445 @@ class AddGaragePage extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(5),
                                     ),
                                   ),
-                                ),
-                                Text("Name of spot", style: blackBoldSmallText),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: TextFormField(
-                                    controller:
-                                        mapProvider.garageNameController,
-                                    decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.grey.shade100,
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                        ),
-                                        hintText: "Garage Name Of Your",
-                                        hintStyle:
-                                            const TextStyle(color: Colors.grey),
-                                        helperText:
-                                            "Please do not mention the parking spot number here",
-                                        helperStyle: TextStyle(
-                                          color: Colors.red.shade200,
-                                          fontSize: 12,
-                                        )),
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return 'Input Your Garage name';
-                                      }
-
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                Text("Address", style: blackBoldSmallText),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: TextFormField(
-                                    controller:
-                                        mapProvider.garageAddressController,
-                                    maxLines: 1,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.grey.shade100,
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide.none,
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      hintText: "Garage Address",
-                                      hintStyle:
-                                          const TextStyle(color: Colors.grey),
-                                      helperText:
-                                          "Your address will not visible to drivers still they book your spot",
-                                      helperStyle: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                      ),
+                                  Text("Enter Spot Details",
+                                      style: blackBoldText),
+                                  const SizedBox(height: 7),
+                                  Text("Image of Spot",
+                                      style: blackBoldSmallText),
+                                  const SizedBox(height: 7),
+                                  Container(
+                                    height: Get.height * .42,
+                                    width: Get.width,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return 'Input Garage Address name';
-                                      }
-
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                Text("Additional Information",
-                                    style: blackBoldSmallText),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: TextFormField(
-                                    controller:
-                                        mapProvider.garageAddInfoController,
-                                    maxLines: 2,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.grey.shade100,
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide.none,
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      hintText: "Garage Address",
-                                      hintStyle:
-                                          const TextStyle(color: Colors.grey),
-                                      helperStyle: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return 'Input Garage Address name';
-                                      }
-
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "No. of vacancies : ",
-                                      style: blackBoldSmallText,
-                                    ),
-                                    SizedBox(
-                                      width: 55,
-                                      height: 55,
-                                      child: TextFormField(
-                                        controller:
-                                            mapProvider.totalSlotController,
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          hintText: "Slot",
-                                          hintStyle: const TextStyle(
-                                              color: Colors.grey),
-                                          filled: true,
-                                          fillColor: Colors.grey.shade100,
-                                          border: OutlineInputBorder(
-                                            borderSide: BorderSide.none,
-                                            borderRadius:
-                                                BorderRadius.circular(15),
+                                    child: mapProvider
+                                            .garageImagesSelection.isNotEmpty
+                                        ? GridView.count(
+                                            primary: false,
+                                            padding: const EdgeInsets.all(20),
+                                            crossAxisSpacing: 10,
+                                            mainAxisSpacing: 10,
+                                            crossAxisCount: 3,
+                                            children: mapProvider
+                                                .garageImagesSelection
+                                                .map((e) => Stack(
+                                                      children: [
+                                                        Image.file(
+                                                          File(e),
+                                                          fit: BoxFit.cover,
+                                                          width: Get.width * .3,
+                                                          height:
+                                                              Get.height * .13,
+                                                        ),
+                                                        IconButton(
+                                                            onPressed: () {
+                                                              mapProvider
+                                                                  .deleteSelectImage(
+                                                                      e);
+                                                            },
+                                                            icon: const Icon(
+                                                              Icons.delete,
+                                                              color: Colors.red,
+                                                              size: 30,
+                                                            ))
+                                                      ],
+                                                    ))
+                                                .toList(),
+                                          )
+                                        : Center(
+                                            child: Text("No Image Select",
+                                                style: grayLowSmallColor),
                                           ),
-                                        ),
-                                        validator: (value) {
-                                          if (value!.isEmpty) {
-                                            return 'Input slot';
-                                          }
-
-                                          return null;
-                                        },
+                                  ),
+                                  Center(
+                                    child: IconButton(
+                                      onPressed: () {
+                                        if (mapProvider
+                                                .garageImagesSelection.length ==
+                                            9) {
+                                          showErrorToastMessage(
+                                              message: "You Select Max Image");
+                                          return;
+                                        }
+                                        mapProvider.pickImage();
+                                      },
+                                      icon: Icon(
+                                        Icons.upload,
+                                        size: 44,
+                                        color: AppColors.primaryColor,
                                       ),
-                                    )
-                                  ],
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      top: 10, bottom: 10),
-                                  height: 100,
-                                  width: Get.width,
-                                  child: GoogleMap(
-                                    zoomControlsEnabled: false,
-                                    zoomGesturesEnabled: false,
-                                    scrollGesturesEnabled: false,
-                                    mapType: MapType.hybrid,
-                                    initialCameraPosition: CameraPosition(
-                                      target: mapProvider.selectPosition,
-                                      zoom: 15.5,
                                     ),
                                   ),
-                                )
-                              ],
-                            ),
-                            ListView(
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(
-                                      top: 10,
-                                      bottom: 10,
-                                      left: Get.width * .3,
-                                      right: Get.width * .3),
-                                  height: 4,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(5),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                      textAlign: TextAlign.center,
+                                      "Upload photo of your parking spot\n[Minimum 1 photos]",
+                                      style: grayTextStyle),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Icon(CupertinoIcons.check_mark_circled,
+                                          color: AppColors.primaryColor),
+                                      Text("Make sure the photo is well",
+                                          style: grayLowSmallColor)
+                                    ],
                                   ),
-                                ),
-                                Text("Enter Spot Details",
-                                    style: blackBoldText),
-                                const SizedBox(height: 7),
-                                Text("Image of Spot",
-                                    style: blackBoldSmallText),
-                                const SizedBox(height: 7),
-                                Container(
-                                  height: Get.height * .42,
-                                  width: Get.width,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade200,
-                                    borderRadius: BorderRadius.circular(15),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Icon(CupertinoIcons.check_mark_circled,
+                                          color: AppColors.primaryColor),
+                                      Text("Avoid Blurry Images",
+                                          style: grayLowSmallColor)
+                                    ],
                                   ),
-                                  child: mapProvider
-                                          .garageImagesSelection.isNotEmpty
-                                      ? GridView.count(
-                                          primary: false,
-                                          padding: const EdgeInsets.all(20),
-                                          crossAxisSpacing: 10,
-                                          mainAxisSpacing: 10,
-                                          crossAxisCount: 3,
-                                          children: mapProvider
-                                              .garageImagesSelection
-                                              .map((e) => Stack(
-                                                    children: [
-                                                      Image.file(
-                                                        File(e),
-                                                        fit: BoxFit.cover,
-                                                        width: Get.width * .3,
-                                                        height:
-                                                            Get.height * .13,
-                                                      ),
-                                                      IconButton(
-                                                          onPressed: () {
-                                                            mapProvider
-                                                                .deleteSelectImage(
-                                                                    e);
-                                                          },
-                                                          icon: const Icon(
-                                                            Icons.delete,
-                                                            color: Colors.red,
-                                                            size: 30,
-                                                          ))
-                                                    ],
-                                                  ))
-                                              .toList(),
-                                        )
-                                      : Center(
-                                          child: Text("No Image Select",
-                                              style: grayLowSmallColor),
-                                        ),
-                                ),
-                                Center(
-                                  child: IconButton(
-                                    onPressed: () {
-                                      if (mapProvider
-                                              .garageImagesSelection.length ==
-                                          9) {
-                                        showErrorToastMessage(
-                                            "You Select Max Image");
-                                        return;
-                                      }
-                                      mapProvider.pickImage();
-                                    },
-                                    icon: Icon(
-                                      Icons.upload,
-                                      size: 44,
-                                      color: AppColors.primaryColor,
-                                    ),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Icon(CupertinoIcons.check_mark_circled,
+                                          color: AppColors.primaryColor),
+                                      Text("Show the complete spot",
+                                          style: grayLowSmallColor)
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                    textAlign: TextAlign.center,
-                                    "Upload photo of your parking spot\n[Minimum 1 photos]",
-                                    style: grayTextStyle),
-                                const SizedBox(height: 7),
-                                Row(
-                                  children: [
-                                    Icon(CupertinoIcons.check_mark_circled,
-                                        color: AppColors.primaryColor),
-                                    Text("Make sure the photo is well",
-                                        style: grayLowSmallColor)
-                                  ],
-                                ),
-                                const SizedBox(height: 7),
-                                Row(
-                                  children: [
-                                    Icon(CupertinoIcons.check_mark_circled,
-                                        color: AppColors.primaryColor),
-                                    Text("Avoid Blurry Images",
-                                        style: grayLowSmallColor)
-                                  ],
-                                ),
-                                const SizedBox(height: 7),
-                                Row(
-                                  children: [
-                                    Icon(CupertinoIcons.check_mark_circled,
-                                        color: AppColors.primaryColor),
-                                    Text("Show the complete spot",
-                                        style: grayLowSmallColor)
-                                  ],
-                                ),
-                                const SizedBox(height: 7),
-                              ],
-                            ),
-                            ListView(
-                              children: [
-                                const SizedBox(height: 30),
-                                Text("Enter Spot Details",
-                                    style: blackBoldText),
-                                const SizedBox(height: 7),
-                                Row(
-                                  children: [
-                                    Text("Number of Floor :",
-                                        style: blackBoldSmallText),
-                                    SizedBox(
-                                      width: 70,
-                                      height: 55,
-                                      child: TextFormField(
-                                        controller:
-                                            mapProvider.numberOfFloorController,
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          hintText: "Floor",
-                                          hintStyle: const TextStyle(
-                                              color: Colors.grey),
-                                          filled: true,
-                                          fillColor: Colors.grey.shade100,
-                                          border: OutlineInputBorder(
-                                            borderSide: BorderSide.none,
-                                            borderRadius:
-                                                BorderRadius.circular(15),
+                                  const SizedBox(height: 7),
+                                ],
+                              ),
+                              ListView(
+                                children: [
+                                  const SizedBox(height: 30),
+                                  Text("Enter Spot Details",
+                                      style: blackBoldText),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Text("Number of Floor :",
+                                          style: blackBoldSmallText),
+                                      SizedBox(
+                                        width: 70,
+                                        height: 55,
+                                        child: TextFormField(
+                                          controller: mapProvider
+                                              .numberOfFloorController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                            hintText: "Floor",
+                                            hintStyle: const TextStyle(
+                                                color: Colors.grey),
+                                            filled: true,
+                                            fillColor: Colors.grey.shade100,
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.grey, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.grey, width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                            ),
+                                          ),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Select Floor Information';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 7),
+                                  Text("Does your Parking Spot have any these?",
+                                      style: blackBoldSmallText),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () {
+                                            mapProvider
+                                                .addFacilityFunction("CCTV");
+                                          },
+                                          child: Container(
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              color: mapProvider.garageFacility
+                                                      .contains("CCTV")
+                                                  ? AppColors.primaryColor
+                                                  : Colors.grey.shade300,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  CupertinoIcons.camera,
+                                                  color: Colors.white,
+                                                ),
+                                                Text("CCTV",
+                                                    style: whiteBoldText),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(height: 7),
-                                Text("Does your Parking Spot have any these?",
-                                    style: blackBoldSmallText),
-                                const SizedBox(height: 7),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () {
-                                          mapProvider
-                                              .addFacilityFunction("CCTV");
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () {
+                                            mapProvider.addFacilityFunction(
+                                                "Lighting");
+                                          },
+                                          child: Container(
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              color: mapProvider.garageFacility
+                                                      .contains("Lighting")
+                                                  ? AppColors.primaryColor
+                                                  : Colors.grey.shade300,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  CupertinoIcons.lightbulb,
+                                                  color: Colors.white,
+                                                ),
+                                                Text("Lighting",
+                                                    style: whiteBoldText)
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () {
+                                            mapProvider.addFacilityFunction(
+                                                "Security Guard");
+                                          },
+                                          child: Container(
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              color: mapProvider.garageFacility
+                                                      .contains(
+                                                          "Security Guard")
+                                                  ? AppColors.primaryColor
+                                                  : Colors.grey.shade300,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  Icons.security,
+                                                  color: Colors.white,
+                                                ),
+                                                Text("Security Guard",
+                                                    style: whiteBoldText),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () {
+                                            mapProvider.addFacilityFunction(
+                                                "24/7 Service");
+                                          },
+                                          child: Container(
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              color: mapProvider.garageFacility
+                                                      .contains("24/7 Service")
+                                                  ? AppColors.primaryColor
+                                                  : Colors.grey.shade300,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  CupertinoIcons.lock_open,
+                                                  color: Colors.white,
+                                                ),
+                                                Text("24/7 Service",
+                                                    style: whiteBoldText)
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 7),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () {
+                                            mapProvider.addFacilityFunction(
+                                                "Covered Parking");
+                                          },
+                                          child: Container(
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              color: mapProvider.garageFacility
+                                                      .contains(
+                                                          "Covered Parking")
+                                                  ? AppColors.primaryColor
+                                                  : Colors.grey.shade300,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  CupertinoIcons.car_detailed,
+                                                  color: Colors.white,
+                                                ),
+                                                Text("Covered Parking",
+                                                    style: whiteBoldText),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () {
+                                            mapProvider.addFacilityFunction(
+                                                "Roadside Parking");
+                                          },
+                                          child: Container(
+                                            height: 80,
+                                            decoration: BoxDecoration(
+                                              color: mapProvider.garageFacility
+                                                      .contains(
+                                                          "Roadside Parking")
+                                                  ? AppColors.primaryColor
+                                                  : Colors.grey.shade300,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  Icons.add_road,
+                                                  color: Colors.white,
+                                                ),
+                                                Text("Roadside Parking",
+                                                    style: whiteBoldText)
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ListTile(
+                                      trailing: Checkbox(
+                                        value: mapProvider.tramsCond,
+                                        onChanged: (value) {
+                                          mapProvider.tramsCond =
+                                              !mapProvider.tramsCond;
                                         },
-                                        child: Container(
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: mapProvider.garageFacility
-                                                    .contains("CCTV")
-                                                ? AppColors.primaryColor
-                                                : Colors.grey.shade300,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                CupertinoIcons.camera,
-                                                color: Colors.white,
-                                              ),
-                                              Text("CCTV",
-                                                  style: whiteBoldText),
-                                            ],
-                                          ),
-                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () {
-                                          mapProvider
-                                              .addFacilityFunction("Lighting");
-                                        },
-                                        child: Container(
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: mapProvider.garageFacility
-                                                    .contains("Lighting")
-                                                ? AppColors.primaryColor
-                                                : Colors.grey.shade300,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                CupertinoIcons.lightbulb,
-                                                color: Colors.white,
-                                              ),
-                                              Text("Lighting",
-                                                  style: whiteBoldText)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 7),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () {
-                                          mapProvider.addFacilityFunction(
-                                              "Security Guard");
-                                        },
-                                        child: Container(
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: mapProvider.garageFacility
-                                                    .contains("Security Guard")
-                                                ? AppColors.primaryColor
-                                                : Colors.grey.shade300,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                Icons.security,
-                                                color: Colors.white,
-                                              ),
-                                              Text("Security Guard",
-                                                  style: whiteBoldText),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () {
-                                          mapProvider.addFacilityFunction(
-                                              "24/7 Service");
-                                        },
-                                        child: Container(
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: mapProvider.garageFacility
-                                                    .contains("24/7 Service")
-                                                ? AppColors.primaryColor
-                                                : Colors.grey.shade300,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                CupertinoIcons.lock_open,
-                                                color: Colors.white,
-                                              ),
-                                              Text("24/7 Service",
-                                                  style: whiteBoldText)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 7),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () {
-                                          mapProvider.addFacilityFunction(
-                                              "Covered Parking");
-                                        },
-                                        child: Container(
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: mapProvider.garageFacility
-                                                    .contains("Covered Parking")
-                                                ? AppColors.primaryColor
-                                                : Colors.grey.shade300,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                CupertinoIcons.car_detailed,
-                                                color: Colors.white,
-                                              ),
-                                              Text("Covered Parking",
-                                                  style: whiteBoldText),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () {
-                                          mapProvider.addFacilityFunction(
-                                              "Roadside Parking");
-                                        },
-                                        child: Container(
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: mapProvider.garageFacility
-                                                    .contains(
-                                                        "Roadside Parking")
-                                                ? AppColors.primaryColor
-                                                : Colors.grey.shade300,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                Icons.add_road,
-                                                color: Colors.white,
-                                              ),
-                                              Text("Roadside Parking",
-                                                  style: whiteBoldText)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ListTile(
-                                    trailing: Checkbox(
-                                      value: mapProvider.tramsCond,
-                                      onChanged: (value) {
+                                      onTap: () {
+                                        log("value : ${mapProvider.tramsCond}");
                                         mapProvider.tramsCond =
                                             !mapProvider.tramsCond;
                                       },
+                                      title: Text(
+                                        "All The Information Are the contains your terms and conditions",
+                                        style: grayLowSmallColor,
+                                      ),
                                     ),
-                                    onTap: () {
-                                      log("value : ${mapProvider.tramsCond}");
-                                      mapProvider.tramsCond =
-                                          !mapProvider.tramsCond;
-                                    },
-                                    title: Text(
-                                      "All The Information Are the contains your terms and conditions",
-                                      style: grayLowSmallColor,
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            ListView(
-                              children: [
-                                Center(
-                                  child: Text("Row & Colum"),
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          height: 120,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List<Widget>.generate(
-                                    3,
-                                    (index) => AnimatedContainer(
-                                          duration:
-                                              const Duration(milliseconds: 200),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                              Radius.circular(50),
-                                            ),
-                                            color: AppColors.primaryColor,
-                                          ),
-                                          margin:
-                                              const EdgeInsets.only(right: 5),
-                                          height: 10,
-                                          curve: Curves.easeIn,
-                                          width: currentPage == index ? 20 : 10,
-                                        )),
+                                  )
+                                ],
                               ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.grey,
-                                      ),
-                                      child: Text(currentPage == 0
-                                          ? "Back To Map"
-                                          : "Back"),
-                                      onPressed: () {
-                                        currentPage == 0
-                                            ? Get.back()
-                                            : currentPage = currentPage - 1;
-                                        mapProvider.addGarageController
-                                            .animateToPage(currentPage,
-                                                duration: const Duration(
-                                                    milliseconds: 500),
-                                                curve: Curves
-                                                    .fastLinearToSlowEaseIn);
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primaryColor,
-                                      ),
-                                      child: Text(
-                                          currentPage == 2 ? "Submit" : "Next"),
-                                      onPressed: () {
-                                        if (currentPage == 2) {
-                                          if (mapProvider.formKey.currentState!
-                                              .validate()) {
-                                            mapProvider.createAGarage(context);
-                                          }
-                                        } else {
-                                          currentPage++;
+                              ListView(
+                                children: const [
+                                  Center(
+                                    child: Text("Row & Colum"),
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: 120,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List<Widget>.generate(
+                                      3,
+                                      (index) => AnimatedContainer(
+                                            duration: const Duration(
+                                                milliseconds: 200),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                Radius.circular(50),
+                                              ),
+                                              color: AppColors.primaryColor,
+                                            ),
+                                            margin:
+                                                const EdgeInsets.only(right: 5),
+                                            height: 10,
+                                            curve: Curves.easeIn,
+                                            width:
+                                                currentPage == index ? 20 : 10,
+                                          )),
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.grey,
+                                        ),
+                                        child: Text(currentPage == 0
+                                            ? "Back To Map"
+                                            : "Back"),
+                                        onPressed: () {
+                                          currentPage == 0
+                                              ? Get.back()
+                                              : currentPage = currentPage - 1;
                                           mapProvider.addGarageController
                                               .animateToPage(
                                                   currentPage,
@@ -801,16 +841,56 @@ class AddGaragePage extends StatelessWidget {
                                                   curve: Curves
                                                       .fastLinearToSlowEaseIn);
                                           setState(() {});
-                                        }
-                                      },
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              )
-                            ],
+                                    const SizedBox(width: 15),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              AppColors.primaryColor,
+                                        ),
+                                        child: Text(currentPage == 2
+                                            ? "Submit"
+                                            : "Next"),
+                                        onPressed: () {
+                                          if (mapProvider.formKey.currentState!
+                                              .validate()) {
+                                            if (currentPage == 2) {
+                                              mapProvider
+                                                  .createAGarage(context);
+                                            } else {
+                                              log("${mapProvider.garageImagesSelection.isEmpty}");
+                                              if (mapProvider
+                                                      .garageImagesSelection
+                                                      .isEmpty &&
+                                                  currentPage == 1) {
+                                                showErrorToastMessage(
+                                                    message:
+                                                        "Please Select At List One Image");
+                                                return;
+                                              }
+                                              currentPage++;
+                                              mapProvider.addGarageController
+                                                  .animateToPage(currentPage,
+                                                      duration: const Duration(
+                                                          milliseconds: 500),
+                                                      curve: Curves
+                                                          .fastLinearToSlowEaseIn);
+                                              setState(() {});
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );

@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 
 import 'app_colors.dart';
 
-void showErrorToastMessage(String message) {
+void showErrorToastMessage({String message = '"Something Error"'}) {
   Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,

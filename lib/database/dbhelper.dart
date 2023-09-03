@@ -2,19 +2,20 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:parking_koi/model/notification_model.dart';
-import 'package:parking_koi/services/Auth_service.dart';
 
 import '../model/admin_model.dart';
 import '../model/booking_model.dart';
 import '../model/garage_model.dart';
 import '../model/message_model.dart';
 import '../model/money_transsion_model.dart';
+import '../model/notification_model.dart';
 import '../model/parking_model.dart';
 import '../model/parking_rating_model.dart';
 import '../model/user_model.dart';
+import '../model/vat_model.dart';
+import '../model/vicModel.dart';
 import '../model/withdraw_money_model.dart';
-import '../pages/admin/models/vat_model.dart';
+import '../services/Auth_service.dart';
 
 class DbHelper {
   static final _db = FirebaseFirestore.instance;
@@ -29,6 +30,23 @@ class DbHelper {
         .collection(collectionUser)
         .doc(userModel.uid)
         .set(userModel.toMap());
+  }
+
+  static Future<void> addVehicle(String uid, VicModel vicModel) {
+    return _db
+        .collection(collectionUser)
+        .doc(uid)
+        .collection('CarList')
+        .doc(vicModel.vId)
+        .set(vicModel.toJson());
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllVehicle(String uid) {
+    return _db
+        .collection(collectionUser)
+        .doc(uid)
+        .collection('CarList')
+        .snapshots();
   }
 
   static Stream<DocumentSnapshot<Map<String, dynamic>>> getUserInfo(
@@ -46,6 +64,8 @@ class DbHelper {
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllParkingPoint() =>
       _db.collection(collectionParkingPoint).snapshots();
+  static Future<QuerySnapshot<Map<String, dynamic>>> getAllParkingPointGet() =>
+      _db.collection(collectionParkingPoint).get();
 
   static Stream<DocumentSnapshot<Map<String, dynamic>>> getParkingById(
           String pId) =>
@@ -198,6 +218,10 @@ class DbHelper {
 
   static Future<void> updateGarageInfo(String gId, Map<String, dynamic> map) {
     return _db.collection(collectionGarage).doc(gId).update(map);
+  }
+
+  static Future<void> deleteAGarage(String gId) {
+    return _db.collection(collectionGarage).doc(gId).delete();
   }
 
   static Future<DocumentSnapshot<Map<String, dynamic>>> getGarageInfoById(
@@ -429,6 +453,107 @@ class DbHelper {
         userFieldBalance: balance,
       });
     }
+    return wb.commit();
+  }
+
+  ///increate a spot in garage
+  static Future<void> increaseASpotGarage(GarageModel garageModel,
+      SpotInformation spotInformation, int indexOfArray) async {
+    final garageDoc = _db.collection(collectionGarage).doc(garageModel.gId);
+    final wb = _db.batch();
+    int totalSpot = num.parse(garageModel.totalSpace).toInt() + 1;
+    garageModel.totalSpace = totalSpot.toString();
+
+    ///pre all floor
+    List<FloorModel> previousList = garageModel.floorDetails!;
+
+    ///select floor
+    FloorModel selectFloor = previousList[indexOfArray];
+
+    ///pre all spot
+    List<SpotInformation> preNewAllSpot = selectFloor.spotInformation!;
+
+    ///add a spot
+    preNewAllSpot.add(spotInformation);
+    wb.update(garageDoc, garageModel.toMap());
+    return wb.commit();
+  }
+
+  static Future<void> deleteASpotGarage(
+      GarageModel garageModel, String floor, int index) {
+    final garageDoc = _db.collection(collectionGarage).doc(garageModel.gId);
+    final wb = _db.batch();
+    int totalSpot = num.parse(garageModel.totalSpace).toInt() - 1;
+    garageModel.totalSpace = totalSpot.toString();
+
+    ///pre all floor
+    List<FloorModel> previousList = garageModel.floorDetails!;
+
+    ///select floor
+    FloorModel selectFloor = previousList[num.parse(floor).toInt()];
+
+    ///pre all spot
+    List<SpotInformation> preNewAllSpot = selectFloor.spotInformation!;
+
+    ///add a spot
+    preNewAllSpot.removeAt(index);
+    wb.update(garageDoc, garageModel.toMap());
+    return wb.commit();
+  }
+
+  static Future<void> deleteAFloorGarage(
+      GarageModel garageModel, int floor) async {
+    final garageDoc = _db.collection(collectionGarage).doc(garageModel.gId);
+    final wb = _db.batch();
+    int totalSpot = num.parse(garageModel.totalFloor).toInt() - 1;
+    garageModel.floorDetails!.removeAt(floor);
+    garageModel.totalFloor = totalSpot.toString();
+    wb.update(garageDoc, garageModel.toMap());
+    return wb.commit();
+  }
+
+  static Future<void> addAFloorGarage(
+      GarageModel garageModel, String floor) async {
+    final garageDoc = _db.collection(collectionGarage).doc(garageModel.gId);
+    final wb = _db.batch();
+    int totalSpot = num.parse(garageModel.totalFloor).toInt() + 1;
+    garageModel.floorDetails!
+        .add(FloorModel(floorNumber: floor, spotInformation: []));
+    garageModel.totalFloor = totalSpot.toString();
+    wb.update(garageDoc, garageModel.toMap());
+    return wb.commit();
+  }
+
+  static Future<void> addBooking(
+      String gId,
+      Map<String, dynamic> map,
+      BookingModel bookingModel,
+      MoneyTransactionModel transactionModel,
+      NotificationModelOfUser notificationModel) {
+    final wb = _db.batch();
+    final gDoc = _db.collection(collectionGarage).doc(gId);
+    wb.update(gDoc, map);
+
+    ///
+    ///update booking info
+    final bookDoc = _db.collection(collectionBooking).doc(bookingModel.bId);
+    wb.set(bookDoc, map);
+
+    //add money in parking owner account
+    // final userOwnerDoc = _db.collection(collectionUser).doc(garageOwnerId);
+    // wb.update(userOwnerDoc, mapUser);
+    // //set data in Transactions model
+    final tranDoc =
+        _db.collection(collectionTransaction).doc(transactionModel.tId);
+    wb.set(tranDoc, transactionModel.toMap());
+
+    //setNotification
+    final notificationDoc = _db
+        .collection(collectionUser)
+        .doc(bookingModel.userUId)
+        .collection(collectionNotification)
+        .doc(notificationModel.id);
+    wb.set(notificationDoc, notificationModel.toMap());
     return wb.commit();
   }
 }

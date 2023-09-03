@@ -83,6 +83,14 @@ dependencies:
   geocoding:
   firebase_messaging:
   dio:
+  url_launcher:
+  flutter_chat_ui: ^1.6.9
+  animate_do: ^3.0.2
+  chips_choice:
+  multiple_search_selection:
+  flutter_animate:
+  getwidget: ^2.0.4
+  animated_flip_counter: ^0.2.6
 
 
 

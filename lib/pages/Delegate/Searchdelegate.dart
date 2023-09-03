@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parking_finder/controller/GarageController.dart';
+import 'package:parking_finder/model/garage_model.dart';
 
 class ParkingSearchDelegate extends SearchDelegate {
-  final cities = [
-    'Dhaka',
-    'Chittagong',
-    'Camila',
-  ];
+  GarageController garageController;
 
-  final recentCities = [
-    'Mirpur',
-    'Mohakhali',
-    'Uttara',
-  ];
+  List<String> cities = [];
+
+  List<String> recentCities = [];
+
+  ParkingSearchDelegate(this.garageController);
 
   @override
   List<Widget> buildActions(BuildContext context) => [
@@ -40,7 +38,7 @@ class ParkingSearchDelegate extends SearchDelegate {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.location_city, size: 120),
+            const Icon(Icons.commit, size: 120),
             const SizedBox(height: 48),
             Text(
               query,
@@ -56,6 +54,12 @@ class ParkingSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    cities = [];
+    recentCities = [];
+    for (GarageModel garageModel in garageController.activeGarageList) {
+      cities.add(garageModel.city);
+      recentCities.add(garageModel.division);
+    }
     final suggestions = query.isEmpty
         ? recentCities
         : cities.where((city) {

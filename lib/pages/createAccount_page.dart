@@ -300,8 +300,6 @@ class CreateAccountPage extends StatelessWidget {
                         splashColor: AppColors.primaryColor,
                         onPressed: () {
                           log("Google LogIn");
-                          loginProvider.createUserWithGoogle(
-                              loginProvider, context);
                         },
                         icon: const Icon(
                           FontAwesomeIcons.google,
